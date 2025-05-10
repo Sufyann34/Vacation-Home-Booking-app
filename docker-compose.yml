@@ -1,9 +1,19 @@
 services:
+  authMicroservice:
+    build: ./authMicroservice
+    volumes:
+    - ./authMicroservice:/authMicroservice
+    ports:
+    - "8000:8000"
+    image: app:django
+    container_name: django_container
+    command: python manage.py runserver 0.0.0.0:8000
+
   listing_service:
     build: ./listing_service
     container_name: listing_service
     ports:
-      - "8000:8000"
+      - "8080:80"
     env_file:
       - .env
     volumes:

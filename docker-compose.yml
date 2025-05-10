@@ -1,0 +1,14 @@
+services:
+  listing_service:
+    build: ./listing_service
+    container_name: listing_service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./listing_service/app:/listing_service/app
+
+volumes:
+  data:
+    driver: local

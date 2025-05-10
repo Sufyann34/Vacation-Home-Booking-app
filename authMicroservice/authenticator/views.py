@@ -20,6 +20,9 @@ def login(request):
 
 @api_view(['POST'])
 def signup(request):
+    if User.objects.filter(email=request.data.get('email')).exists():
+        return Response({"detail": "Email address is already registered."}, status=status.HTTP_400_BAD_REQUEST)
+     
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()

@@ -9,9 +9,13 @@ async def get_listings(index):
     cursor = collection.find(limit = 10, skip = 1 * index)
     return list(cursor)
 
+async def get_listing(name):
+    cursor = collection.find_one({"name": name})
+    return cursor
 
-async def create_listing(listing_data: dict) -> dict:
-    pass
-#     listing = await listing_collection.insert_one(listing_data)
-#     new_listing = await listing_collection.find_one({"_id": listing.inserted_id})
-#     return new_listing
+async def create_listing(listing_data):
+    cursor = collection.find_one({"name": listing_data['name']})
+    if(cursor == None):
+        collection.insert_one(listing_data)
+        cursor = collection.find_one({"name": listing_data['name']})
+    return cursor

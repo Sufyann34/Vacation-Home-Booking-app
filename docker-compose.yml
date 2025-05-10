@@ -3,7 +3,7 @@ services:
     build: ./listing_service
     container_name: listing_service
     ports:
-      - "8000:8000"
+      - "9090:80"
     env_file:
       - .env
     volumes:

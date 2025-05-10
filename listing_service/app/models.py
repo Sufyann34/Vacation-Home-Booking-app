@@ -1,7 +1,7 @@
 from pydantic import BaseModel, validator
 from bson.decimal128 import Decimal128
 from datetime import datetime
-from typing import List, Optional
+from typing import List, TypedDict
 
 
 class Image(BaseModel):
@@ -66,13 +66,19 @@ class Review(BaseModel):
     comments: str
 
 
+class AddressForListing(BaseModel):
+    market: str
+    country: str
 
 class Listing(BaseModel):
-    _id: str
+    # _id: str
     name: str
     price: float
-    summary: str
     property_type: str
+    # address: AddressForListing
+
+    # summary: str
+    # property_type: str
     # description: str | None
     # last_scraped: datetime
     # reviews: list[Review] | None
@@ -83,6 +89,17 @@ class Listing(BaseModel):
             return float(str(v))
         return v
 
+class Mongo_create_listing(TypedDict):
+    name: str
+    price: float
+    property_type: str
+    
+
+class Create_listing(BaseModel):
+    name: str
+    price: float
+    property_type: str
+    
 
 class Detailed_list(BaseModel):
     _id: str

@@ -3,8 +3,9 @@ import getpass
 from tabulate import tabulate
 import shlex
 
-AUTH_SERVICE_URL = "http://127.0.0.1:8000"
-LISTINGS_SERVICE_URL = "http://127.0.0.1:9090"
+AUTH_SERVICE_URL = "http://authMicroservice:8000"
+LISTINGS_SERVICE_URL = "http://listing_service:80"
+# LISTINGS_SERVICE_URL = "http://127.0.0.1:9090"
 
 # Store session token globally
 auth_token = None
@@ -14,8 +15,8 @@ def authenticate():
     print("Welcome to the PDS Admin CLI")
     username = input("Login: ")
     password = getpass.getpass("Password: ")
-
-    response = requests.post(f"{AUTH_SERVICE_URL}/login", json={"username": username, "password": password})
+    
+    response = requests.post(f"{AUTH_SERVICE_URL}/login", {"username": username, "password": password})
     
     if response.status_code == 200:
         auth_token = response.json().get("token")
@@ -44,8 +45,12 @@ def deactivate_user(user_id):
     print("Response:", response.status_code, response.text)
 
 def list_listings():
+    index = 0
     if not check_auth(): return
-    response = requests.get(f"{LISTINGS_SERVICE_URL}/listings/", headers={"Authorization": f"Bearer {auth_token}"})
+    response = requests.get(
+        f"{LISTINGS_SERVICE_URL}/listings/?index=" + str(index), 
+        # headers={"Authorization": f"Bearer {auth_token}"}
+    )
     if response.ok:
         print(tabulate(response.json(), headers="keys", tablefmt="grid"))
     else:

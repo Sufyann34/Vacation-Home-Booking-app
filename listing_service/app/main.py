@@ -1,13 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.crud import get_listings, create_listing, get_listing
 from app.models import Listing, Create_listing, Mongo_create_listing
 from typing import List
 
 app = FastAPI()
 
+# Allow CORS for these origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 async def root():
-    return {"message": "Vacation Home Service Running"}
+    return {"message": "Listing Service Running"}
 
 @app.post("/listings/", response_model=Create_listing)
 async def create_one_listing(house: Create_listing):

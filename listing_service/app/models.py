@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Field
 from bson.decimal128 import Decimal128
 from datetime import datetime
 from typing import List, TypedDict
@@ -48,7 +48,7 @@ class Availability(BaseModel):
     availability_90: int
     availability_365: int
 
-class Review_scores(BaseModel):
+class ReviewScores(BaseModel):
     review_scores_accuracy: int
     review_scores_cleanliness: int
     review_scores_checkin: int
@@ -58,7 +58,7 @@ class Review_scores(BaseModel):
     review_scores_rating: int
 
 class Review(BaseModel):
-    _id: str
+    id: str = Field(..., alias="_id")
     date: datetime
     listing_id: str
     reviewer_id: str
@@ -71,7 +71,7 @@ class AddressForListing(BaseModel):
     country: str
 
 class Listing(BaseModel):
-    # _id: str
+    id: str = Field(..., alias="_id")
     name: str
     price: float
     property_type: str
@@ -89,20 +89,21 @@ class Listing(BaseModel):
             return float(str(v))
         return v
 
-class Mongo_create_listing(TypedDict):
-    name: str
-    price: float
-    property_type: str
-    
-
-class Create_listing(BaseModel):
-    name: str
-    price: float
-    property_type: str
-    
-
-class Detailed_list(BaseModel):
+class MongoCreate(TypedDict):
     _id: str
+    name: str
+    price: float
+    property_type: str
+    
+
+class Create(BaseModel):
+    name: str
+    price: float
+    property_type: str
+    
+
+class DetailedList(BaseModel):
+    id: str = Field(..., alias="_id")
     name: str
     price: float
     description: str

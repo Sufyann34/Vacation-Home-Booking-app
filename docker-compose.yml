@@ -1,28 +1,27 @@
 services:
-  cli_model:
-    build: ./cli_model
-    container_name: cli_model
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./cli_model:/cli_model
-    entrypoint: ["/bin/sh"]
-    # depends_on:
-    #   - authMicroservice
-    #   - listing_service
-    # networks:
-    #   - app_net
-
-
-  authMicroservice:
-    build: ./authMicroservice
-    volumes:
-    - ./authMicroservice:/authMicroservice
-    ports:
-    - "8000:8000"
-    image: app:django
-    container_name: django_container
-    command: python manage.py runserver 0.0.0.0:8000
+  # cli_model:
+  #   build: ./cli_model
+  #   container_name: cli_model
+  #   stdin_open: true
+  #   tty: true
+  #   volumes:
+  #     - ./cli_model:/cli_model
+  #   entrypoint: ["/bin/sh"]
+  #   # depends_on:
+  #   #   - authMicroservice
+  #   #   - listing_service
+  #   # networks:
+  #   #   - app_net
+    
+  # authMicroservice:
+  #   build: ./authMicroservice
+  #   volumes:
+  #   - ./authMicroservice:/authMicroservice
+  #   ports:
+  #   - "8000:8000"
+  #   image: app:django
+  #   container_name: django_container
+  #   command: python manage.py runserver 0.0.0.0:8000
   
   listing_service:
     build: ./listing_service

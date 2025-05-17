@@ -10,9 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.example.smartphone_app.ui.screens.AuthNavGraph
 import com.example.smartphone_application.ui.theme.Smartphone_applicationTheme
 import androidx.compose.foundation.layout.padding
+import com.example.smartphone_application.ui.screens.AuthNavGraph
+//import com.example.smartphone_application.ui.screens.ListingNav
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +23,10 @@ class MainActivity : ComponentActivity() {
             Smartphone_applicationTheme {
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    ListingNav(
+//                        navController = navController,
+//                        modifier = Modifier.padding(innerPadding) // Apply padding here
+//                    )
                     AuthNavGraph(
                         navController = navController,
                         modifier = Modifier.padding(innerPadding) // Apply padding here
@@ -37,6 +42,7 @@ class MainActivity : ComponentActivity() {
 fun PreviewAuthNavGraph() {
     Smartphone_applicationTheme {
         val navController = rememberNavController()
+//        ListingNav(navController = navController)
         AuthNavGraph(navController = navController)
     }
 }

@@ -3,11 +3,18 @@ from bson.decimal128 import Decimal128
 from typing import List, TypedDict
 # from datetime import datetime
 
+class Image(BaseModel):
+    thumbnail_url: str | None
+    medium_url: str | None
+    picture_url: str | None
+    xl_picture_url: str | None
+
 class Listing(BaseModel):
     id: str = Field(..., alias="_id")
     name: str
     price: float
     property_type: str
+    images: Image
     # address: AddressForListing
 
     # summary: str
@@ -40,11 +47,6 @@ class DetailedList(BaseModel):
     description: str
 
 
-class Image(BaseModel):
-    thumbnail_url: str | None
-    medium_url: str | None
-    picture_url: str | None
-    xl_picture_url: str | None
 
 class Host(BaseModel):
     host_id: str

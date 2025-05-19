@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hotel_application.navigation.Navigation
 import com.example.hotel_application.ui.theme.Hotel_applicationTheme
 import com.example.hotel_application.viewModel.MainViewModel
 
@@ -34,11 +35,10 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .verticalScroll(rememberScrollState()) // Enables scrolling
-                            .padding(16.dp) // Adds padding to the content
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp)
                     ) {
-                        // Display raw data as string
-                        Text(text = state.hotels.toString())
+                        Navigation()
                     }
                 }
             }

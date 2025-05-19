@@ -5,3 +5,4 @@ venv/
 db.sqlite3
 pds_cli.egg-info/
 authMicroservice/test.rest
+.idea/

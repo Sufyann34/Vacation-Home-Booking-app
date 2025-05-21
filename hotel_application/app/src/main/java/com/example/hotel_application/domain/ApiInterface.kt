@@ -11,7 +11,7 @@ interface ApiInterface {
     @GET("/listings")
 
     suspend fun getListing(
-        @Query("skip") skip: Int = 0,
+        @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10
     ):Response<List<Data>>
 }

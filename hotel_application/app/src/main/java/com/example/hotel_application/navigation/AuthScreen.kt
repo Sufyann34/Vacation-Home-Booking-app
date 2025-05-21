@@ -1,46 +1,48 @@
 package com.example.hotel_application.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.hotel_application.viewModel.AuthViewModel
 
-
 @Composable
-fun AuthScreen(navController: NavHostController) {
+fun AuthScreen(navController: NavHostController? = null) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    
-    val authViewModel: AuthViewModel = viewModel()
-    val response by authViewModel.loginResponse.collectAsState()
+    var isLoginMode by remember { mutableStateOf(true) }
 
-    // Check if all required fields are filled
-    val isFormValid = username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+    val authViewModel: AuthViewModel = viewModel()
+    val loginResponse by authViewModel.loginResponse.collectAsState()
+    val signupResponse by authViewModel.signupResponse.collectAsState()
+
+    val isFormValid = if (isLoginMode) {
+        username.isNotBlank() && password.isNotBlank()
+    } else {
+        username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            if (isLoginMode) "Login" else "Sign Up",
+            style = MaterialTheme.typography.headlineLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         TextField(
             value = username,
             onValueChange = { username = it },
@@ -48,14 +50,15 @@ fun AuthScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email*") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (!isLoginMode) {
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email*") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -63,23 +66,26 @@ fun AuthScreen(navController: NavHostController) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Password*") },
-            modifier = Modifier.fillMaxWidth(),
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                authViewModel.signup(username, email, password)
+                if (isLoginMode) {
+                    authViewModel.login(username, password)
+                } else {
+                    authViewModel.signup(username, password, email)
+                }
             },
-            enabled = isFormValid,  // Disable button if form not valid
+            enabled = isFormValid,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Sign Up")
+            Text(if (isLoginMode) "Login" else "Sign Up")
         }
 
-        // Optionally show an error message when fields are empty and user tries to submit
         if (!isFormValid) {
             Text(
                 "Please fill out all required fields",
@@ -88,6 +94,42 @@ fun AuthScreen(navController: NavHostController) {
             )
         }
 
-        // Show response messages from your API call here...
+        Spacer(modifier = Modifier.height(12.dp))
+
+        TextButton(
+            onClick = {
+                isLoginMode = !isLoginMode
+            }
+        ) {
+            Text(
+                if (isLoginMode) "Don't have an account? Sign Up"
+                else "Already have an account? Login"
+            )
+        }
+
+        // Optional: Display API response
+        loginResponse?.let {
+            if (it.isSuccessful) {
+                Text("Success! Token: ${it.body()?.token}")
+                navController?.navigate("Home Screen")
+            } else {
+                Text("Authentication Failed", color = MaterialTheme.colorScheme.error)
+            }
+        }
+        signupResponse?.let {
+            if (it.isSuccessful) {
+                Text("Success! Token: ${it.body()?.token}")
+                navController?.navigate("Home Screen")
+            } else {
+                val errorMessage = it.errorBody()?.string() ?: "Unknown error"
+                Text("Signup Failed: $errorMessage", color = MaterialTheme.colorScheme.error)
+            }
+        }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AuthScreenPreview() {
+    AuthScreen()
 }

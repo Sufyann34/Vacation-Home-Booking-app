@@ -21,10 +21,10 @@ interface ApiInterface {
         @Query("limit") limit: Int = 10
     ):Response<List<Data>>
 
-    @GET("/listings/{hotel_id}")
+    @GET("/listings/{item_id}")
     suspend fun getDetailsById(
-        @Path("hotel_id")id: Int
-    ): Response<Details>
+        @Path("item_id")_id: String
+    ): Response<List<Details>>
 
     @POST("/login")
     suspend fun login(

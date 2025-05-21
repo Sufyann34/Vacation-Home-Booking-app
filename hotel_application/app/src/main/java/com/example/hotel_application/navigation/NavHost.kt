@@ -18,15 +18,15 @@ fun Navigation() {
         composable ("Home Screen") {
             HomeScreen(navController = navController)
         }
-        composable ("Details Screen/{id}",
+        composable ("Details Screen/{_id}",
             arguments = listOf(
                 navArgument(
                     name = "_id"
                 ) {
-                    type = NavType.IntType
+                    type = NavType.StringType
                 }
             )) { id ->
-            id.arguments?.getInt("_id")?.let{ id1 ->
+            id.arguments?.getString("_id")?.let{ id1 ->
                 DetailsScreen(id = id1)
             }
         }

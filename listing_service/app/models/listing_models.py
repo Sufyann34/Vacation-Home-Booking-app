@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator, Field
 from bson.decimal128 import Decimal128
-from typing import List
+from typing import List, Optional
+from .review_models import Review
 # from datetime import datetime
 
 class Image(BaseModel):
@@ -9,18 +10,28 @@ class Image(BaseModel):
     picture_url: str | None
     xl_picture_url: str | None
 
+class Location(BaseModel):
+    type: str
+    coordinates: List[float]
+    is_location_exact: bool
+
+class Address(BaseModel):
+    street: str
+    suburb: str
+    government_area: str
+    market: str
+    country: str
+    country_code: str
+    location: Location
+
 class Listing(BaseModel):
     id: str = Field(..., alias="_id")
     name: str
     price: float
     property_type: str
     images: Image
-    # address: AddressForListing
-
-    # summary: str
-    # property_type: str
-    # description: str | None
-    # last_scraped: datetime
+    summary: str
+    address: Address
     # reviews: list[Review] | None
 
     @validator('price', pre=True)
@@ -44,7 +55,20 @@ class DetailedList(BaseModel):
     id: str = Field(..., alias="_id")
     name: str
     price: float
-    description: str
+    property_type: str
+    images: Image
+    description: str | None
+    summary: str | None
+    amenities: Optional[List[str]] = None
+    accommodates: int
+    reviews: Optional[List[Review]] = None
+
+
+    @validator('price', pre=True)
+    def convert_decimal128(cls, v):
+        if isinstance(v, Decimal128):
+            return float(str(v))
+        return v
 
 
 
@@ -65,11 +89,6 @@ class Host(BaseModel):
     host_listings_count: int
     host_total_listings_count: int
     host_verifications: List[str]
-
-class Location(BaseModel):
-    type: str
-    coordinates: List[float]
-    is_location_exact: bool
 
 class Address(BaseModel):
     street: str

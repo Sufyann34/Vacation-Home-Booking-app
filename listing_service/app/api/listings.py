@@ -3,7 +3,7 @@ from pymongo.errors import DuplicateKeyError
 from app.crud import (  get_listings, create_listing, get_listing_by_id, 
                         update_listing, delete_listing, search_listings, 
                         get_listings_paginated, get_listings_for_user)
-from app.models.listing_models import Listing, Create
+from app.models.listing_models import Listing, Create, DetailedList
 from typing import List, Optional
 
 
@@ -52,7 +52,7 @@ async def get_listings_paginated_endpoint(page: int = 1, limit: int = 10):
     listings = await get_listings_paginated(page, limit)
     return listings
 
-@router.get("/{item_id}", response_model=List[Listing])
+@router.get("/{item_id}", response_model=List[DetailedList])
 async def get_listing_by_id_endpoint(item_id: str):
     listings = await get_listing_by_id(item_id)
     return listings

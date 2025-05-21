@@ -12,7 +12,7 @@ class ReviewScores(BaseModel):
     review_scores_rating: int
 
 class Review(BaseModel):
-    id: str = Field(..., alias="_id")
+    _id: str
     date: datetime
     listing_id: str 
     reviewer_id: str

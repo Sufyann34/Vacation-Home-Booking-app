@@ -21,17 +21,17 @@ class MainViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     val hotels = response.body()
                     if (!hotels.isNullOrEmpty()) {
-                        println("✅ API returned ${hotels.size} hotels")
+                        println("API returned ${hotels.size} hotels")
                         state = state.copy(hotels = hotels)
                     } else {
-                        println("❌ API returned empty or null list")
+                        println("API returned empty or null list")
                     }
                 } else {
-                    println("❌ API error: ${response.code()}")
+                    println("API error: ${response.code()}")
                 }
 
             } catch (e: Exception) {
-                println("🔥 Exception: ${e.message}")
+                println("Exception: ${e.message}")
             }
         }
     }

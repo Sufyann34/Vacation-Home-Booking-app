@@ -38,6 +38,9 @@ class MainActivity : ComponentActivity() {
                             .verticalScroll(rememberScrollState())
                             .padding(16.dp)
                     ) {
+
+                        //To check if response is being returned
+                        //Text(text = state.hotels.toString())
                         Navigation()
                     }
                 }

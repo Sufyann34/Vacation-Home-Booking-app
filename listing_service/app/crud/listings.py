@@ -11,7 +11,7 @@ async def get_listing_by_id(id):
     listings = await cursor.to_list(length = 1)
     return listings
 
-async def create_listing(listing_data: Create) -> dict:
+async def create_listing(listing_data: dict) -> dict:
     custom_id = generate_custom_id(listing_data['name'])
     document = listing_data
     document["_id"] = custom_id
@@ -35,8 +35,8 @@ async def search_listings(filters: dict, limit: int):
     listing = await listings.to_list(length = limit)
     return listing
 
-async def get_listings_paginated(skip: int, limit: int):
-    listing = collection.find(limit = limit, skip = skip)
+async def get_listings_paginated(page: int, limit: int):
+    listing = collection.find(limit = limit, skip = (page - 1) * limit)
     listings = await listing.to_list(length = limit)
     return listings
 

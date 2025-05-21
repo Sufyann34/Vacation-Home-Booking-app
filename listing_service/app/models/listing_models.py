@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator, Field
 from bson.decimal128 import Decimal128
-from typing import List, TypedDict
+from typing import List
 # from datetime import datetime
 
 class Image(BaseModel):
@@ -28,17 +28,17 @@ class Listing(BaseModel):
         if isinstance(v, Decimal128):
             return float(str(v))
         return v
-
-class MongoCreate(TypedDict):
-    _id: str
-    name: str
-    price: float
-    property_type: str
     
 class Create(BaseModel):
     name: str
     price: float
     property_type: str
+    images: Image
+
+    def to_mongo_dict(self) -> dict:
+        data = self.dict()
+        data["images"] = self.images.dict()
+        return data
     
 class DetailedList(BaseModel):
     id: str = Field(..., alias="_id")

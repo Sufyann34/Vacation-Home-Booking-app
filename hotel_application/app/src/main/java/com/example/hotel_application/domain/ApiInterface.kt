@@ -5,6 +5,7 @@ import com.example.hotel_application.model.HotelList
 import com.example.hotel_application.model.LoginRequest
 import com.example.hotel_application.model.SignupRequest
 import com.example.hotel_application.model.LoginResponse
+import com.example.hotel_application.model.SignupResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -29,7 +30,7 @@ interface ApiInterface {
     @POST("/signup")
     suspend fun signup(
         @Body signupRequest: SignupRequest
-    ): Response<Unit>  // Or your desired response type
+    ): Response<SignupResponse>  // Or your desired response type
 
     @GET("/verify")
     suspend fun verify(

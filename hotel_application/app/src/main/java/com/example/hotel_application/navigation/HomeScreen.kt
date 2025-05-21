@@ -1,5 +1,6 @@
 package com.example.hotel_application.navigation
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,8 @@ import com.example.hotel_application.model.Data
 import com.example.hotel_application.viewModel.MainViewModel
 import com.example.hotel_application.R
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.hotel_application.model.HotelList
 
 
 @Composable
@@ -42,8 +45,8 @@ fun HomeScreen(
     ) {
         Text(text = "Hotels List (Page $currentPage):")
 
-        state.hotels.forEach { hotel ->
-            ListingCard(hotel = hotel)
+        state.hotels.forEachIndexed { index, hotel ->
+            ListingCard(hotel = hotel, itemIndex = index, hotelList = state.hotels, navController = navController as NavHostController)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -75,10 +78,13 @@ fun HomeScreen(
 
 
 @Composable
-fun ListingCard(hotel: Data) {
+fun ListingCard(hotel: Data, itemIndex: Int, hotelList: List<Data>, navController: NavHostController) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("Details Screen/${hotelList[itemIndex]._id}")
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {

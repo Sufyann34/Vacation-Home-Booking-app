@@ -5,5 +5,5 @@ data class Details (
     val name: String,
     val price: Float,
     val property_type: String,
-    val images: List<String>
+    val images: Images
 )

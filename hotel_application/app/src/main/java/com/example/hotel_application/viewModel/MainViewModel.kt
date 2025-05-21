@@ -14,25 +14,42 @@ class MainViewModel : ViewModel() {
     var state by mutableStateOf(ScreenState())
 
     init {
+        // Initially load the first page of hotels
+        loadHotels(state.page)
+    }
+
+    // Function to load hotels based on the current page
+    private fun loadHotels(page: Int) {
         viewModelScope.launch {
             try {
-                val response = repository.getHotelList(state.page)
+                val response = repository.getHotelList(page)
 
                 if (response.isSuccessful) {
                     val hotels = response.body()
                     if (!hotels.isNullOrEmpty()) {
                         println("API returned ${hotels.size} hotels")
-                        state = state.copy(hotels = hotels)
+                        state = state.copy(hotels = hotels, page = page)
                     } else {
                         println("API returned empty or null list")
                     }
                 } else {
                     println("API error: ${response.code()}")
                 }
-
             } catch (e: Exception) {
                 println("Exception: ${e.message}")
             }
+        }
+    }
+
+    // Navigate to the next page (increment page)
+    fun nextPage() {
+        loadHotels(state.page + 1)
+    }
+
+    // Navigate to the previous page (decrement page)
+    fun previousPage() {
+        if (state.page > 1) {
+            loadHotels(state.page - 1)
         }
     }
 }

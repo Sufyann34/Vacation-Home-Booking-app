@@ -1,6 +1,8 @@
 package com.example.hotel_application.navigation
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -9,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,19 +33,46 @@ fun HomeScreen(
     viewModel: MainViewModel = viewModel()
 ) {
     val state = viewModel.state
+    val currentPage = state.page
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(text = "Hotels List:")
+        Text(text = "Hotels List (Page $currentPage):")
 
         state.hotels.forEach { hotel ->
             ListingCard(hotel = hotel)
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Previous button (disabled on the first page)
+            Button(
+                onClick = { viewModel.previousPage() },
+                enabled = currentPage > 1
+            ) {
+                Text("Previous")
+            }
+
+            // Next button (enabled based on whether more pages are available)
+            Button(
+                onClick = { viewModel.nextPage() },
+                enabled = state.hotels.isNotEmpty() // If there are hotels, enable the button
+            ) {
+                Text("Next")
+            }
+        }
     }
 }
+
 
 @Composable
 fun ListingCard(hotel: Data) {

@@ -55,8 +55,6 @@ fun LoginScreen(navController: NavHostController) {
         Button(
             onClick = {
                 authViewModel.login(username, password)
-
-                navController.navigate("Home Screen")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -65,6 +63,7 @@ fun LoginScreen(navController: NavHostController) {
         response?.let {
             if (it.isSuccessful) {
                 Text("Login Success! Token: ${it.body()?.token}")
+                navController.navigate("Home Screen")
                 // Navigate to home
                 // navController.navigate("home")
             } else {

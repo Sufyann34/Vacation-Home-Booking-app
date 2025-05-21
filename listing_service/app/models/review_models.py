@@ -14,7 +14,7 @@ class ReviewScores(BaseModel):
 class Review(BaseModel):
     id: str = Field(..., alias="_id")
     date: datetime
-    listing_id: str
+    listing_id: str 
     reviewer_id: str
     reviewer_name: str
     comments: str

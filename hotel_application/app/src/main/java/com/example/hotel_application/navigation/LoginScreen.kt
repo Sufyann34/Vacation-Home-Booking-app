@@ -8,11 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hotel_application.viewModel.AuthViewModel
+
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val authViewModel: AuthViewModel = viewModel()
+    val response by authViewModel.loginResponse.collectAsState()
 
     Column(
         modifier = Modifier
@@ -49,11 +54,22 @@ fun LoginScreen(navController: NavHostController) {
 
         Button(
             onClick = {
+                authViewModel.login(username, password)
+
                 navController.navigate("Home Screen")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")
+        }
+        response?.let {
+            if (it.isSuccessful) {
+                Text("Login Success! Token: ${it.body()?.token}")
+                // Navigate to home
+                // navController.navigate("home")
+            } else {
+                Text("Login Failed", color = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }

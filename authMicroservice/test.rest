@@ -1,13 +1,13 @@
 POST http://127.0.0.1:8000/login
 Content-Type: application/json
 
-{"username": "sufi", "password": "321pass"}
+{"username": "test", "password": "test123"}
 ###
 
 POST http://127.0.0.1:8000/signup
 Content-Type: application/json
 
-{"username": "sufi", "password": "321pass", "email": "test@gmail.com"}
+{"username": "test", "password": "test123", "email": "test@gmail.com"}
 ###
 
 GET http://127.0.0.1:8000/verify

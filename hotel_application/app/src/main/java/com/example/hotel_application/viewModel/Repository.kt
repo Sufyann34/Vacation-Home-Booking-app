@@ -8,6 +8,6 @@ import retrofit2.Response
 class Repository {
     suspend fun getHotelList(page: Int): Response<List<Data>> {
         val skip = (page - 1) * 10
-        return RetrofitInstance.api.getListing(skip = skip, limit = 10)
+        return RetrofitInstance.listingApi.getListing(skip = skip, limit = 10)
     }
 }

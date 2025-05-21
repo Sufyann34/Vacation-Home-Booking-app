@@ -51,4 +51,4 @@ Distributed Systems" entwickelt. Ziel ist es, eine robuste und skalierbare Platt
 Jedes Teammitglied hat an einer oder mehreren Komponenten gearbeitet.
 
 ## Lizenze
-***wird am Ende des Projekts erworben***
+Dieses Projekt ist Open-Source und unter der [BSD3-Clause](https://opensource.org/license/BSD-3-Clause) License verfügbar.

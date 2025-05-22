@@ -11,9 +11,3 @@ data class LoginResponse(
     val token: String,
     val user: User
 )
-
-data class SignupResponse(
-    val username: String,
-    val password: String,
-    val email: String
-)

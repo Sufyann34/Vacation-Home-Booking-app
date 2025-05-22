@@ -38,3 +38,21 @@ def signup(request):
 @permission_classes([IsAuthenticated])
 def verify(request):
     return Response("passed for {}".format(request.user.username))
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def list_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+def delete_user(request, username):
+    try:
+        user_to_delete = User.objects.get(username=username)
+        user_to_delete.delete()
+        return Response({"detail": f"User '{username}' deleted."}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)

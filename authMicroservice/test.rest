@@ -1,17 +1,24 @@
 POST http://127.0.0.1:8000/login
 Content-Type: application/json
 
-{"username": "test", "password": "test123"}
+{"username": "firstuser", "password": "test123"}
 ###
 
 POST http://127.0.0.1:8000/signup
 Content-Type: application/json
 
-{"username": "test1", "password": "test123", "email": "test1@gmail.com"}
+{"username": "firstuser1", "password": "test123", "email": "pehla1@gmail.com"}
 ###
 
 GET http://127.0.0.1:8000/verify
 Content-Type: application/json
 Authorization: Token 5aac3b803ea550c2aba13904b6ed0355b151cdba
+###
 
-{}
+GET http://127.0.0.1:8000/users
+Content-Type: application/json
+###
+
+#Dynamic URL to delete user is http://127.0.0.1:8000/delete/<username>
+DELETE http://127.0.0.1:8000/delete/firstuser1
+Content-Type: application/json

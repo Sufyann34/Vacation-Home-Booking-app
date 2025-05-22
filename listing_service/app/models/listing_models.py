@@ -5,10 +5,10 @@ from .review_models import Review
 # from datetime import datetime
 
 class Image(BaseModel):
-    thumbnail_url: str | None
-    medium_url: str | None
-    picture_url: str | None
-    xl_picture_url: str | None
+    thumbnail_url: Optional[str] = None
+    medium_url: Optional[str] = None
+    picture_url: Optional[str] = None
+    xl_picture_url: Optional[str] = None
 
 class Location(BaseModel):
     type: str
@@ -16,9 +16,9 @@ class Location(BaseModel):
     is_location_exact: bool
 
 class Address(BaseModel):
-    street: str
-    suburb: str
-    government_area: str
+    street: Optional[str] = None
+    suburb: Optional[str] = None
+    government_area: Optional[str] = None
     market: str
     country: str
     country_code: str
@@ -31,8 +31,7 @@ class Listing(BaseModel):
     property_type: str
     images: Image
     summary: str
-    address: Address
-    # reviews: list[Review] | None
+    address: Optional[Address] = None
 
     @validator('price', pre=True)
     def convert_decimal128(cls, v):
@@ -45,6 +44,11 @@ class Create(BaseModel):
     price: float
     property_type: str
     images: Image
+    description: Optional[str] = None
+    summary: Optional[str] = None
+    amenities: Optional[List[str]] = None
+    accommodates: int
+    reviews: Optional[List[Review]] = None
 
     def to_mongo_dict(self) -> dict:
         data = self.dict()
@@ -57,8 +61,8 @@ class DetailedList(BaseModel):
     price: float
     property_type: str
     images: Image
-    description: str | None
-    summary: str | None
+    description: Optional[str] = None
+    summary: Optional[str] = None
     amenities: Optional[List[str]] = None
     accommodates: int
     reviews: Optional[List[Review]] = None

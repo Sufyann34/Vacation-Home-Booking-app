@@ -31,7 +31,7 @@ def verify(token):
     )
     return response
 
-# Authenticate and get token
+# Authentication
 def authenticate():
     global auth_token
     print("Welcome to the PDS Admin CLI")
@@ -94,7 +94,7 @@ def list_listings(page=1, per_page=10):
         simplified = []
         for listing in listings:
             simplified.append({
-                "ID": listing.get("_id", ""),  # Changed to external listing_id
+                "ID": listing.get("_id", ""),  
                 "Name": listing.get("name", ""),
                 "Price": f"${listing.get('price', '')}"
             })
@@ -104,7 +104,7 @@ def list_listings(page=1, per_page=10):
         print("Error fetching listings:", response.text)
 
 
-# Delete a listing using external listing_id
+# Delete a listing 
 def delete_listing(listing_id):
     if not check_auth(): return
     confirm = input(f"Are you sure you want to delete listing {listing_id}? [y/N]: ").strip().lower()

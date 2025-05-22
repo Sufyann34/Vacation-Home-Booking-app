@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Query
 from app.models import Review
-from app.crud import add_review, get_reviews, delete_review
-from typing import List
+from app.crud import add_review, get_reviews, delete_review, get_reviews_paginated
+from typing import List, Optional
 
 router = APIRouter(prefix="/listings/{listing_id}/reviews", tags=["reviews"])
 
@@ -20,10 +20,16 @@ async def create_review(
 
 @router.get("/", response_model=List[Review])
 async def read_reviews(
-    listing_id: str = Path(..., description="The ID of the listing to get reviews for")
+    listing_id: str = Path(..., description="The ID of the listing to get reviews for"),
+    page: Optional[int] = Query(None, ge=1, description="Page number for pagination"),
+    limit: Optional[int] = Query(None, ge=1, le=100, description="Number of reviews per page")
 ):
-    reviews = await get_reviews(listing_id)
+    if page and limit:
+        reviews = await get_reviews_paginated(listing_id, page, limit)
+    else:
+        reviews = await get_reviews(listing_id)
     return reviews
+
 
 @router.delete("/{review_id}", response_model=dict)
 async def delete_review_endpoint(

@@ -27,6 +27,22 @@ async def get_reviews(listing_id: str) -> List[Review]:
         return listing["reviews"]
     return []
 
+from typing import List
+from app.models import Review
+
+async def get_reviews_paginated(listing_id: str, page: int = 1, limit: int = 10) -> List[Review]:
+    """
+    Get paginated reviews for a listing.
+    Returns empty list if no reviews or listing not found.
+    """
+    listing = await collection.find_one({"_id": listing_id})
+    if listing and "reviews" in listing:
+        start = (page - 1) * limit
+        end = start + limit
+        reviews = listing["reviews"][start:end]
+        return [Review(**r) for r in reviews]
+    return []
+
 
 async def delete_review(listing_id: str, review_id: str) -> dict:
     """

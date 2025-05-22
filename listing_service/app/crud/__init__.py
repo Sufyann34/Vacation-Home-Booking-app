@@ -16,7 +16,8 @@ from .listings import (
 from .reviews import (
     add_review,
     delete_review,
-    get_reviews
+    get_reviews,
+    get_reviews_paginated
 )
 
 
@@ -34,5 +35,6 @@ __all__ = [
     # Review operations
     "add_review",
     "delete_review",
+    "get_reviews_paginated",
     "get_reviews"
 ]

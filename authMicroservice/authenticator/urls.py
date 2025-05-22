@@ -23,4 +23,6 @@ urlpatterns = [
     re_path('login', views.login),
     re_path('signup', views.signup),
     re_path('verify', views.verify),
+    re_path('users', views.list_users),
+    re_path(r'^delete/(?P<username>[\w.@+-]+)$', views.delete_user)
 ]

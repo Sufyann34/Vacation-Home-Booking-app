@@ -1,6 +1,5 @@
 package com.example.hotel_application.viewModel
 
-import android.telecom.Call
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,17 +8,28 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.hotel_application.model.Details
-import com.example.hotel_application.model.Images
-import com.example.hotel_application.utils.RetrofitInstance
 
 class MainViewModel : ViewModel() {
     private val repository = Repository()
     var state by mutableStateOf(ScreenState())
     var id by mutableStateOf("")
 
+    var isLoggedIn by mutableStateOf(false)
+        private set
+
     init {
-        // Initially load the first page of hotels
+//         Initially load the first page of hotels
         loadHotels(state.page)
+    }
+
+    fun login() {
+        isLoggedIn = true
+        loadHotels(state.page) // Load hotels after login
+    }
+
+    fun logout() {
+        isLoggedIn = false
+        state = ScreenState() // Reset UI state
     }
 
     fun getDetailsById(_id: String) {

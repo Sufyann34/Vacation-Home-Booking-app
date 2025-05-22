@@ -2,12 +2,15 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import UserSerializer
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 @api_view(['POST'])
 def login(request):
@@ -38,3 +41,21 @@ def signup(request):
 @permission_classes([IsAuthenticated])
 def verify(request):
     return Response("passed for {}".format(request.user.username))
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def list_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+def delete_user(request, username):
+    try:
+        user_to_delete = User.objects.get(username=username)
+        user_to_delete.delete()
+        return Response({"detail": f"User '{username}' deleted."}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)

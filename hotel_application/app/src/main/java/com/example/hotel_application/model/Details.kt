@@ -5,5 +5,12 @@ data class Details (
     val name: String,
     val price: Float,
     val property_type: String,
-    val images: Images
+    val images: Images,
+    val summary: String,
+    val address: Address?
+)
+
+data class Address (
+    val street: String?,
+    val country: String?
 )

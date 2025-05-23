@@ -64,7 +64,11 @@ fun Navigation() {
             }
 
             composable(BottomNavItem.About.route) {
-                AboutScreen()
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)) {
+                    AboutScreen()
+                }
             }
 
             composable(BottomNavItem.Logout.route) {

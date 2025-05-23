@@ -66,6 +66,7 @@ class DetailedList(BaseModel):
     amenities: Optional[List[str]] = None
     accommodates: int
     reviews: Optional[List[Review]] = None
+    address: Address
 
 
     @validator('price', pre=True)

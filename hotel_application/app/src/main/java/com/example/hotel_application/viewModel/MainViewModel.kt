@@ -40,7 +40,7 @@ class MainViewModel : ViewModel() {
         try {
             UserManager.clearUserSession()
         } catch (e: Exception) {
-            // Handle the case where UserManager is not initialized
+            println("Exception in getDetailsById: ${e.message}")
         }
         state = ScreenState()
         currentOffset = 0
@@ -61,6 +61,30 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    private fun updateActiveFilters(
+        searchQuery: String? = null,
+        propertyType: String? = null,
+        minPrice: Float? = null,
+        maxPrice: Float? = null
+    ) {
+        val currentFilters = state.activeFilters.toMutableMap()
+        
+        searchQuery?.let { 
+            if (it.isNotBlank()) currentFilters["name"] = it 
+            else currentFilters.remove("name")
+        }
+        
+        propertyType?.let { 
+            if (it.isNotBlank()) currentFilters["property_type"] = it 
+            else currentFilters.remove("property_type")
+        }
+        
+        minPrice?.let { currentFilters["minPrice"] = it } ?: currentFilters.remove("minPrice")
+        maxPrice?.let { currentFilters["maxPrice"] = it } ?: currentFilters.remove("maxPrice")
+        
+        state = state.copy(activeFilters = currentFilters)
+    }
+
     fun searchListings(
         name: String? = null,
         propertyType: String? = null,
@@ -72,6 +96,17 @@ class MainViewModel : ViewModel() {
             currentOffset = 0
             state = state.copy(hotels = emptyList())
         }
+
+        // Update state with new search parameters
+        state = state.copy(
+            searchQuery = name ?: "",
+            propertyType = propertyType ?: "",
+            minPrice = minPrice,
+            maxPrice = maxPrice
+        )
+
+        // Update active filters
+        updateActiveFilters(name, propertyType, minPrice, maxPrice)
 
         viewModelScope.launch {
             try {
@@ -100,15 +135,15 @@ class MainViewModel : ViewModel() {
 
     fun removeFilter(key: String) {
         when (key) {
-            "property_type" -> searchListings(
-                name = state.searchQuery,
-                propertyType = null,
-                minPrice = state.minPrice,
-                maxPrice = state.maxPrice
-            )
             "name" -> searchListings(
                 name = null,
                 propertyType = state.propertyType,
+                minPrice = state.minPrice,
+                maxPrice = state.maxPrice
+            )
+            "property_type" -> searchListings(
+                name = state.searchQuery,
+                propertyType = null,
                 minPrice = state.minPrice,
                 maxPrice = state.maxPrice
             )

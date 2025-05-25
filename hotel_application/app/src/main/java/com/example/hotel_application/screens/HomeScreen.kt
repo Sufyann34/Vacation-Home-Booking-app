@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.hotel_application.components.ListingCard
+import com.example.hotel_application.components.FilterTags
 import com.example.hotel_application.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -72,170 +73,142 @@ fun HomeScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // Search bar with filter button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Hotel Search") },
+                actions = {
+                    IconButton(onClick = { showFilters = !showFilters }) {
+                        Icon(
+                            Icons.Default.FilterList,
+                            contentDescription = "Toggle filters"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
+            // Search bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 onSearch = { applyFilters() },
                 placeholder = { Text("Search hotels...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.weight(1f)
-            )
-
-            IconButton(
-                onClick = { showFilters = !showFilters },
-                modifier = Modifier
-                    .size(48.dp)
-                    .padding(4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FilterList,
-                    contentDescription = "Toggle filters",
-                    tint = if (showFilters) MaterialTheme.colorScheme.primary 
-                           else MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-
-        // Active filters
-        if (state.activeFilters.isNotEmpty()) {
-            Card(
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(8.dp)
+                    .padding(16.dp)
+            )
+
+            // Active filters
+            FilterTags(
+                activeFilters = state.activeFilters,
+                onRemoveFilter = { key -> viewModel.removeFilter(key) }
+            )
+
+            // Filters section
+            if (showFilters) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(
-                        "Active Filters",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                    LazyRow(
+                    Column(
                         modifier = Modifier
+                            .padding(16.dp)
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(state.activeFilters.toList()) { (key, value) ->
-                            CustomFilterChip(
-                                label = when (key) {
-                                    "name" -> "Name: $value"
-                                    "property_type" -> "Type: $value"
-                                    "minPrice" -> "Min: $${value}"
-                                    "maxPrice" -> "Max: $${value}"
-                                    else -> value.toString()
+                        Text(
+                            text = "Filters",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = propertyType,
+                            onValueChange = { propertyType = it },
+                            onSearch = { applyFilters() },
+                            placeholder = { Text("Property Type") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = minPrice,
+                                onValueChange = { 
+                                    if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                        minPrice = it
+                                    }
                                 },
-                                onRemove = { viewModel.removeFilter(key) }
+                                onSearch = { applyFilters() },
+                                placeholder = { Text("Min Price") },
+                                modifier = Modifier.weight(1f)
                             )
+
+                            OutlinedTextField(
+                                value = maxPrice,
+                                onValueChange = { 
+                                    if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                        maxPrice = it
+                                    }
+                                },
+                                onSearch = { applyFilters() },
+                                placeholder = { Text("Max Price") },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Button(
+                            onClick = { applyFilters() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                        ) {
+                            Text("Apply Filters")
                         }
                     }
                 }
             }
-        }
 
-        // Filters section
-        if (showFilters) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp)
+            // Hotel list with lazy loading
+            LazyColumn(
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        "Filters",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                items(state.hotels) { hotel ->
+                    ListingCard(
+                        hotel = hotel,
+                        navController = navController as NavHostController
                     )
-
-                    OutlinedTextField(
-                        value = propertyType,
-                        onValueChange = { propertyType = it },
-                        onSearch = { applyFilters() },
-                        placeholder = { Text("Property Types (e.g., House, Apartment, Villa)") },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = minPrice,
-                            onValueChange = { 
-                                // Only allow numbers and decimal point
-                                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                                    minPrice = it
-                                }
-                            },
-                            onSearch = { applyFilters() },
-                            placeholder = { Text("Min Price") },
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        OutlinedTextField(
-                            value = maxPrice,
-                            onValueChange = { 
-                                // Only allow numbers and decimal point
-                                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                                    maxPrice = it
-                                }
-                            },
-                            onSearch = { applyFilters() },
-                            placeholder = { Text("Max Price") },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
                 }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hotel list with lazy loading
-        LazyColumn(
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(state.hotels) { hotel ->
-                ListingCard(
-                    hotel = hotel,
-                    navController = navController as NavHostController
-                )
-            }
-            
-            if (state.isLoading) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                
+                if (state.isLoading) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }

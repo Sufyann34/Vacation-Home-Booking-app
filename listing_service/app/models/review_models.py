@@ -1,15 +1,17 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import List, Optional
+
 
 
 class ReviewScores(BaseModel):
-    review_scores_accuracy: int
-    review_scores_cleanliness: int
-    review_scores_checkin: int
-    review_scores_communication: int
-    review_scores_location: int
-    review_scores_value: int
-    review_scores_rating: int
+    review_scores_accuracy: Optional[int] = None
+    review_scores_cleanliness: Optional[int] = None
+    review_scores_checkin: Optional[int] = None
+    review_scores_communication: Optional[int] = None
+    review_scores_location: Optional[int] = None
+    review_scores_value: Optional[int] = None
+    review_scores_rating: Optional[int] = None
 
 class Review(BaseModel):
     id: str = Field(..., alias="_id")

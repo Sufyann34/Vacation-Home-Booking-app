@@ -11,18 +11,18 @@ class Image(BaseModel):
     xl_picture_url: Optional[str] = None
 
 class Location(BaseModel):
-    type: str
-    coordinates: List[float]
-    is_location_exact: bool
+    type: Optional[str] = None
+    coordinates: Optional[List[float]] = None
+    is_location_exact: Optional[bool] = None
 
 class Address(BaseModel):
     street: Optional[str] = None
     suburb: Optional[str] = None
     government_area: Optional[str] = None
-    market: str
-    country: str
-    country_code: str
-    location: Location
+    market: Optional[str] = None
+    country: Optional[str] = None
+    country_code: Optional[str] = None
+    location: Optional[Location] = None
 
 class Listing(BaseModel):
     id: str = Field(..., alias="_id")
@@ -60,14 +60,14 @@ class DetailedList(BaseModel):
     name: str
     price: float
     property_type: str
-    images: Image
+    images: Optional[Image] = None
     description: Optional[str] = None
     summary: Optional[str] = None
     amenities: Optional[List[str]] = None
-    accommodates: int
+    accommodates: Optional[int] = None
     reviews: Optional[List[Review]] = None
     review_scores: Optional[ReviewScores] = None
-    address: Address
+    address: Optional[Address] = None
 
     @validator('price', pre=True)
     def convert_decimal128(cls, v):
@@ -92,15 +92,6 @@ class Host(BaseModel):
     host_listings_count: int
     host_total_listings_count: int
     host_verifications: List[str]
-
-class Address(BaseModel):
-    street: str
-    suburb: str
-    government_area: str
-    market: str
-    country: str
-    country_code: str
-    location: Location
     
 class Availability(BaseModel):
     availability_30: int

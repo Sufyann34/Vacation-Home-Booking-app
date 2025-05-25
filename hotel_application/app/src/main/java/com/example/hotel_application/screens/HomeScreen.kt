@@ -1,155 +1,307 @@
 package com.example.hotel_application.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.material3.Text
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.example.hotel_application.model.Data
+import com.example.hotel_application.components.ListingCard
 import com.example.hotel_application.viewModel.MainViewModel
-import com.example.hotel_application.R
-//import com.example.hotel_application.components.ListingCard
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel = viewModel()
 ) {
     val state = viewModel.state
-    val currentPage = state.page
+    var showFilters by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var propertyType by remember { mutableStateOf("") }
+    var minPrice by remember { mutableStateOf("") }
+    var maxPrice by remember { mutableStateOf("") }
+    
+    val listState = rememberLazyListState()
+
+    // Update local state when filters change in ViewModel
+    LaunchedEffect(state.searchQuery) {
+        searchQuery = state.searchQuery
+    }
+    LaunchedEffect(state.propertyType) {
+        propertyType = state.propertyType
+    }
+    LaunchedEffect(state.minPrice) {
+        minPrice = state.minPrice?.toString() ?: ""
+    }
+    LaunchedEffect(state.maxPrice) {
+        maxPrice = state.maxPrice?.toString() ?: ""
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastIndex ->
+                if (lastIndex != null && lastIndex >= state.hotels.size - 5) {
+                    viewModel.loadMoreListings()
+                }
+            }
+    }
+
+    fun applyFilters() {
+        val minPriceFloat = minPrice.toFloatOrNull()
+        val maxPriceFloat = maxPrice.toFloatOrNull()
+        
+        viewModel.searchListings(
+            name = searchQuery.takeIf { it.isNotBlank() },
+            propertyType = propertyType.takeIf { it.isNotBlank() },
+            minPrice = minPriceFloat,
+            maxPrice = maxPriceFloat
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Title and page info
-        Text(
-            text = "Hotels",
-            style = MaterialTheme.typography.headlineSmall
-        )
-        Text(
-            text = "Page $currentPage",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Search field
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = { Text("Search hotels...") },
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hotel list
-        state.hotels.forEachIndexed { index, hotel ->
-            ListingCard(
-                hotel = hotel,
-                itemIndex = index,
-                hotelList = state.hotels,
-                navController = navController as NavHostController
+        // Search bar with filter button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                onSearch = { applyFilters() },
+                placeholder = { Text("Search hotels...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+
+            IconButton(
+                onClick = { showFilters = !showFilters },
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.FilterList,
+                    contentDescription = "Toggle filters",
+                    tint = if (showFilters) MaterialTheme.colorScheme.primary 
+                           else MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
 
-        // Pagination buttons
-        Spacer(modifier = Modifier.weight(1f))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(
-                onClick = { viewModel.previousPage() },
-                enabled = currentPage > 1
+        // Active filters
+        if (state.activeFilters.isNotEmpty()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
-                Text("Previous")
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text(
+                        "Active Filters",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.activeFilters.toList()) { (key, value) ->
+                            CustomFilterChip(
+                                label = when (key) {
+                                    "name" -> "Name: $value"
+                                    "property_type" -> "Type: $value"
+                                    "minPrice" -> "Min: $${value}"
+                                    "maxPrice" -> "Max: $${value}"
+                                    else -> value.toString()
+                                },
+                                onRemove = { viewModel.removeFilter(key) }
+                            )
+                        }
+                    }
+                }
             }
+        }
 
-            Button(
-                onClick = { viewModel.nextPage() },
-                enabled = state.hotels.isNotEmpty()
+        // Filters section
+        if (showFilters) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Next")
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "Filters",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = propertyType,
+                        onValueChange = { propertyType = it },
+                        onSearch = { applyFilters() },
+                        placeholder = { Text("Property Types (e.g., House, Apartment, Villa)") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = minPrice,
+                            onValueChange = { 
+                                // Only allow numbers and decimal point
+                                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                    minPrice = it
+                                }
+                            },
+                            onSearch = { applyFilters() },
+                            placeholder = { Text("Min Price") },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        OutlinedTextField(
+                            value = maxPrice,
+                            onValueChange = { 
+                                // Only allow numbers and decimal point
+                                if (it.isEmpty() || it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                    maxPrice = it
+                                }
+                            },
+                            onSearch = { applyFilters() },
+                            placeholder = { Text("Max Price") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Hotel list with lazy loading
+        LazyColumn(
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(state.hotels) { hotel ->
+                ListingCard(
+                    hotel = hotel,
+                    navController = navController as NavHostController
+                )
+            }
+            
+            if (state.isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
         }
     }
 }
 
-
 @Composable
-fun ListingCard(
-    hotel: Data,
-    itemIndex: Int,
-    hotelList: List<Data>,
-    navController: NavHostController
+private fun CustomFilterChip(
+    label: String,
+    onRemove: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate("Details Screen/${hotelList[itemIndex]._id}")
-            },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    Surface(
+        modifier = Modifier.padding(4.dp),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
-        Column {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(
-                        hotel.images.picture_url
-                            ?: "android.resource://${LocalContext.current.packageName}/${R.drawable.placeholder}"
-                    )
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "${hotel.name} image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(hotel.name, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "Price: ${hotel.price}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(20.dp)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Remove filter",
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun OutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    placeholder: @Composable () -> Unit,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    shape: androidx.compose.ui.graphics.Shape = MaterialTheme.shapes.small,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = placeholder,
+        leadingIcon = leadingIcon,
+        shape = shape,
+        modifier = modifier,
+        singleLine = true,
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+            imeAction = androidx.compose.ui.text.input.ImeAction.Search
+        ),
+        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+            onSearch = { onSearch() }
+        )
+    )
 }
 

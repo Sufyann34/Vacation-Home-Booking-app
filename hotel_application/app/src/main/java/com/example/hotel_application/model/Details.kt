@@ -7,10 +7,32 @@ data class Details (
     val property_type: String,
     val images: Images,
     val summary: String,
-    val address: Address?
+    val address: Address?,
+    val reviews: List<Review>? = null,
+    val review_scores: ReviewScores? = null
 )
 
 data class Address (
     val street: String?,
     val country: String?
+)
+
+data class Review (
+    val _id: String,
+    val date: String,
+    val listing_id: String,
+    val reviewer_id: String,
+    val reviewer_name: String,
+    val comments: String,
+    val review_scores: ReviewScores
+)
+
+data class ReviewScores (
+    val review_scores_accuracy: Int,
+    val review_scores_cleanliness: Int,
+    val review_scores_checkin: Int,
+    val review_scores_communication: Int,
+    val review_scores_location: Int,
+    val review_scores_value: Int,
+    val review_scores_rating: Int
 )

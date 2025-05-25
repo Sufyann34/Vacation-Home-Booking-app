@@ -12,43 +12,44 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.hotel_application.R
 import com.example.hotel_application.model.Data
+import com.example.hotel_application.navigation.Screen
 
 @Composable
 fun ListingCard(
     hotel: Data,
-    navController: NavHostController,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate("Details Screen/${hotel._id}")
+                navController.navigate(Screen.Details.route + "/${hotel._id}")
             },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
             Box(
-        modifier = Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-    ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(
                             hotel.images.picture_url
                                 ?: "android.resource://${LocalContext.current.packageName}/${R.drawable.placeholder}"
-                    )
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "${hotel.name} image",
-                contentScale = ContentScale.Crop,
+                        )
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "${hotel.name} image",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
@@ -76,7 +77,7 @@ fun ListingCard(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-        Text(
+                Text(
                     text = hotel.name,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 2,
@@ -91,12 +92,12 @@ fun ListingCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$${hotel.price}",
+                        text = "€${hotel.price}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
         }
-}
+    }
 }

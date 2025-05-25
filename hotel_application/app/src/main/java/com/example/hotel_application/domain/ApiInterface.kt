@@ -2,7 +2,6 @@ package com.example.hotel_application.domain
 
 import com.example.hotel_application.model.Data
 import com.example.hotel_application.model.Details
-import com.example.hotel_application.model.HotelList
 import com.example.hotel_application.model.LoginRequest
 import com.example.hotel_application.model.SignupRequest
 import com.example.hotel_application.model.LoginResponse
@@ -42,13 +41,15 @@ interface ApiInterface {
     @POST("/listings/{listing_id}/reviews")
     suspend fun addReview(
         @Path("listing_id") listing_id: String,
-        @Body review: Review
+        @Body review: Review,
+        @Header("Authorization") authorization: String
     ): Response<Unit>
 
     @DELETE("/listings/{listing_id}/reviews/{review_id}")
     suspend fun deleteReview(
         @Path("listing_id") listing_id: String,
-        @Path("review_id") review_id: String
+        @Path("review_id") review_id: String,
+        @Header("Authorization") authorization: String
     ): Response<Unit>
 
     @POST("/login")

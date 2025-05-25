@@ -21,12 +21,16 @@ import com.example.hotel_application.viewModel.MainViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.example.hotel_application.model.Review
 import com.example.hotel_application.model.ReviewScores
+import com.example.hotel_application.components.ReviewList
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsScreen(id: String) {
+fun DetailsScreen(
+    id: String,
+    onNavigateToReviews: () -> Unit
+) {
     val mainViewModel = viewModel<MainViewModel>()
     mainViewModel.id = id
     mainViewModel.getDetailsById(id)
@@ -151,10 +155,12 @@ fun DetailsScreen(id: String) {
             }
         }
 
-        items(state.reviews) { review ->
-            ReviewCard(
-                review = review,
-                onDelete = { mainViewModel.deleteReview(id, review._id) }
+        // Horizontal Scroll Reviews
+        item {
+            ReviewList(
+                reviews = state.reviews,
+                onSeeMoreClick = onNavigateToReviews,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
         }
     }
@@ -183,49 +189,6 @@ fun ReviewScoreItem(label: String, score: Int) {
     }
 }
 
-@Composable
-fun ReviewCard(
-    review: Review,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = review.reviewer_name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete Review")
-                }
-            }
-            Text(
-                text = review.comments,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-            review.review_scores?.let { scores ->
-                Text(
-                    text = "Rating: ${scores.review_scores_rating}/10",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReviewDialog(
@@ -233,13 +196,6 @@ fun AddReviewDialog(
     onSubmit: (Review) -> Unit
 ) {
     var comments by remember { mutableStateOf("") }
-    var rating by remember { mutableStateOf(5) }
-    var accuracy by remember { mutableStateOf(5) }
-    var cleanliness by remember { mutableStateOf(5) }
-    var checkin by remember { mutableStateOf(5) }
-    var communication by remember { mutableStateOf(5) }
-    var location by remember { mutableStateOf(5) }
-    var value by remember { mutableStateOf(5) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -249,84 +205,27 @@ fun AddReviewDialog(
                 OutlinedTextField(
                     value = comments,
                     onValueChange = { comments = it },
-                    label = { Text("Comments") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Rating", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = rating.toFloat(),
-                    onValueChange = { rating = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Accuracy", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = accuracy.toFloat(),
-                    onValueChange = { accuracy = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Cleanliness", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = cleanliness.toFloat(),
-                    onValueChange = { cleanliness = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Check-in", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = checkin.toFloat(),
-                    onValueChange = { checkin = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Communication", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = communication.toFloat(),
-                    onValueChange = { communication = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Location", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = location.toFloat(),
-                    onValueChange = { location = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
-                )
-                Text("Value", style = MaterialTheme.typography.titleSmall)
-                Slider(
-                    value = value.toFloat(),
-                    onValueChange = { value = it.toInt() },
-                    valueRange = 1f..10f,
-                    steps = 8
+                    label = { Text("Your Review") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    maxLines = 5
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val reviewScores = ReviewScores(
-                        review_scores_accuracy = accuracy,
-                        review_scores_cleanliness = cleanliness,
-                        review_scores_checkin = checkin,
-                        review_scores_communication = communication,
-                        review_scores_location = location,
-                        review_scores_value = value,
-                        review_scores_rating = rating
-                    )
                     val review = Review(
                         _id = UUID.randomUUID().toString(),
                         date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
                         listing_id = "",
-                        reviewer_id = "user123", // TODO: Get actual user ID
-                        reviewer_name = "User", // TODO: Get actual user name
-                        comments = comments,
-                        review_scores = reviewScores
+                        reviewer_id = "user123", // Will be replaced by actual user ID
+                        reviewer_name = "User", // Will be replaced by actual username
+                        comments = comments
                     )
                     onSubmit(review)
-                }
+                },
+                enabled = comments.isNotBlank()
             ) {
                 Text("Submit")
             }

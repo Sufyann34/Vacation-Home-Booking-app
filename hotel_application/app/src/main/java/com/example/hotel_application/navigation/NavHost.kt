@@ -18,7 +18,9 @@ import com.example.hotel_application.screens.AuthScreen
 import com.example.hotel_application.screens.DetailsScreen
 import com.example.hotel_application.screens.HomeScreen
 import com.example.hotel_application.screens.AboutScreen
+import com.example.hotel_application.screens.DetailedReviewsScreen
 import com.example.hotel_application.viewModel.MainViewModel
+import com.example.hotel_application.navigation.Screen
 
 @Composable
 fun Navigation() {
@@ -32,7 +34,7 @@ fun Navigation() {
         BottomNavItem.Logout.route
     )
 
-    Scaffold(
+    Scaffold (
         bottomBar = {
             if (showBottomBar) {
                 BottomNavigationBar(navController, currentRoute)
@@ -79,11 +81,26 @@ fun Navigation() {
                 }
             }
 
-            composable("Details Screen/{_id}",
-                arguments = listOf(navArgument("_id") { type = NavType.StringType })
+            composable(Screen.Details.route + "/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.StringType })
             ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("_id") ?: return@composable
-                DetailsScreen(id = id)
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                DetailsScreen(
+                    id = id,
+                    onNavigateToReviews = {
+                        navController.navigate(Screen.DetailedReviews.route + "/$id")
+                    }
+                )
+            }
+
+            composable(Screen.DetailedReviews.route + "/{id}",
+                arguments = listOf(navArgument("id") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                DetailedReviewsScreen(
+                    listingId = id,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }

@@ -2,11 +2,10 @@ package com.example.hotel_application.viewModel
 
 import com.example.hotel_application.model.Data
 import com.example.hotel_application.model.Details
-import com.example.hotel_application.model.HotelList
 import com.example.hotel_application.model.Review
 import com.example.hotel_application.utils.RetrofitInstance
+import com.example.hotel_application.utils.UserManager
 import retrofit2.Response
-import androidx.lifecycle.viewModelScope
 
 class Repository {
     suspend fun searchListings(
@@ -38,10 +37,20 @@ class Repository {
     }
 
     suspend fun addReview(listing_id: String, review: Review): Response<Unit> {
-        return RetrofitInstance.listingApi.addReview(listing_id = listing_id, review = review)
+        val token = UserManager.getAuthToken()
+        return RetrofitInstance.listingApi.addReview(
+            listing_id = listing_id,
+            review = review,
+            authorization = "Token $token"
+        )
     }
 
     suspend fun deleteReview(listing_id: String, review_id: String): Response<Unit> {
-        return RetrofitInstance.listingApi.deleteReview(listing_id = listing_id, review_id = review_id)
+        val token = UserManager.getAuthToken()
+        return RetrofitInstance.listingApi.deleteReview(
+            listing_id = listing_id,
+            review_id = review_id,
+            authorization = "Token $token"
+        )
     }
 }

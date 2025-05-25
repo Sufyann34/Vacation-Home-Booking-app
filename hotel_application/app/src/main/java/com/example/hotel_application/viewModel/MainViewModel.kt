@@ -1,14 +1,15 @@
 package com.example.hotel_application.viewModel
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hotel_application.model.Data
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.example.hotel_application.model.Details
 import com.example.hotel_application.model.Review
+import com.example.hotel_application.utils.UserManager
+import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
     private val repository = Repository()
@@ -21,6 +22,11 @@ class MainViewModel : ViewModel() {
         private set
 
     init {
+        try {
+            isLoggedIn = UserManager.isLoggedIn()
+        } catch (e: Exception) {
+            isLoggedIn = false
+        }
         searchListings()
     }
 
@@ -31,6 +37,11 @@ class MainViewModel : ViewModel() {
 
     fun logout() {
         isLoggedIn = false
+        try {
+            UserManager.clearUserSession()
+        } catch (e: Exception) {
+            // Handle the case where UserManager is not initialized
+        }
         state = ScreenState()
         currentOffset = 0
     }
@@ -59,75 +70,30 @@ class MainViewModel : ViewModel() {
     ) {
         if (reset) {
             currentOffset = 0
+            state = state.copy(hotels = emptyList())
         }
-        
+
         viewModelScope.launch {
             try {
                 state = state.copy(isLoading = true)
-                
-                // Only include non-empty filters
-                val filters = mutableMapOf<String, Any>()
-                if (!name.isNullOrBlank()) filters["name"] = name
-                if (!propertyType.isNullOrBlank()) {
-                    filters["property_type"] = propertyType.trim()
-                }
-                if (minPrice != null && minPrice > 0) filters["minPrice"] = minPrice
-                if (maxPrice != null && maxPrice > 0) filters["maxPrice"] = maxPrice
-                
                 val response = repository.searchListings(
                     limit = pageSize,
-                    name = if (filters.containsKey("name")) name else null,
-                    propertyType = if (filters.containsKey("property_type")) propertyType else null,
-                    minPrice = if (filters.containsKey("minPrice")) minPrice else null,
-                    maxPrice = if (filters.containsKey("maxPrice")) maxPrice else null
+                    name = name,
+                    propertyType = propertyType,
+                    minPrice = minPrice,
+                    maxPrice = maxPrice
                 )
-
                 if (response.isSuccessful) {
-                    val hotels = response.body()
-                    if (!hotels.isNullOrEmpty()) {
+                    response.body()?.let { hotels ->
                         state = state.copy(
                             hotels = if (reset) hotels else state.hotels + hotels,
-                            searchQuery = name ?: "",
-                            propertyType = propertyType ?: "",
-                            minPrice = minPrice,
-                            maxPrice = maxPrice,
-                            isLoading = false,
-                            activeFilters = filters
-                        )
-                        currentOffset += hotels.size
-                    } else {
-                        state = state.copy(
-                            hotels = if (reset) emptyList() else state.hotels,
-                            searchQuery = name ?: "",
-                            propertyType = propertyType ?: "",
-                            minPrice = minPrice,
-                            maxPrice = maxPrice,
-                            isLoading = false,
-                            activeFilters = filters
+                            isLoading = false
                         )
                     }
-                } else {
-                    state = state.copy(
-                        hotels = if (reset) emptyList() else state.hotels,
-                        searchQuery = name ?: "",
-                        propertyType = propertyType ?: "",
-                        minPrice = minPrice,
-                        maxPrice = maxPrice,
-                        isLoading = false,
-                        activeFilters = filters
-                    )
                 }
             } catch (e: Exception) {
                 println("Exception in searchListings: ${e.message}")
-                state = state.copy(
-                    hotels = if (reset) emptyList() else state.hotels,
-                    searchQuery = name ?: "",
-                    propertyType = propertyType ?: "",
-                    minPrice = minPrice,
-                    maxPrice = maxPrice,
-                    isLoading = false,
-                    activeFilters = state.activeFilters
-                )
+                state = state.copy(isLoading = false)
             }
         }
     }
@@ -192,7 +158,28 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 state = state.copy(isAddingReview = true, reviewError = null)
-                val response = repository.addReview(listing_id, review)
+                val userId = try {
+                    UserManager.getUserId()
+                } catch (e: Exception) {
+                    null
+                }
+                val username = try {
+                    UserManager.getUsername()
+                } catch (e: Exception) {
+                    null
+                }
+                
+                if (userId == null || username == null) {
+                    state = state.copy(reviewError = "User not logged in")
+                    return@launch
+                }
+
+                val reviewWithUser = review.copy(
+                    reviewer_id = userId,
+                    reviewer_name = username
+                )
+
+                val response = repository.addReview(listing_id, reviewWithUser)
                 if (response.isSuccessful) {
                     // Refresh reviews after adding
                     getReviews(listing_id)
@@ -203,20 +190,6 @@ class MainViewModel : ViewModel() {
                 state = state.copy(reviewError = e.message ?: "Unknown error occurred")
             } finally {
                 state = state.copy(isAddingReview = false)
-            }
-        }
-    }
-
-    fun deleteReview(listing_id: String, review_id: String) {
-        viewModelScope.launch {
-            try {
-                val response = repository.deleteReview(listing_id, review_id)
-                if (response.isSuccessful) {
-                    // Refresh reviews after deleting
-                    getReviews(listing_id)
-                }
-            } catch (e: Exception) {
-                println("Exception in deleteReview: ${e.message}")
             }
         }
     }

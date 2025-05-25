@@ -17,16 +17,6 @@ data class Address (
     val country: String?
 )
 
-data class Review (
-    val _id: String,
-    val date: String,
-    val listing_id: String,
-    val reviewer_id: String,
-    val reviewer_name: String,
-    val comments: String,
-    val review_scores: ReviewScores
-)
-
 data class ReviewScores (
     val review_scores_accuracy: Int,
     val review_scores_cleanliness: Int,

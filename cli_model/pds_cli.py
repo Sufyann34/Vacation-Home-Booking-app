@@ -1,13 +1,18 @@
 import requests
 import getpass
+import uuid
+import time
 from tabulate import tabulate
 import shlex
+from datetime import datetime
+from textwrap import shorten
 
 AUTH_SERVICE_URL = "http://authMicroservice:8000"
 LISTINGS_SERVICE_URL = "http://listing_service:80"
 auth_token = None
 
-# Login
+# AUTHENTICATION FUNCTIONS
+
 def login(username, password):
     response = requests.post(
         f"{AUTH_SERVICE_URL}/login",
@@ -15,7 +20,6 @@ def login(username, password):
     )
     return response.json()
 
-# Signup
 def signup(username, password, email):
     response = requests.post(
         f"{AUTH_SERVICE_URL}/signup",
@@ -23,7 +27,6 @@ def signup(username, password, email):
     )
     return response.json()
 
-# Verify token
 def verify(token):
     response = requests.get(
         f"{AUTH_SERVICE_URL}/verify",
@@ -31,7 +34,6 @@ def verify(token):
     )
     return response
 
-# Authentication
 def authenticate():
     global auth_token
     print("Welcome to the PDS Admin CLI")
@@ -57,7 +59,8 @@ def check_auth():
     print("ERROR: Token invalid.")
     return False
 
-# List all users
+# USER MANAGEMENT
+
 def list_users():
     if not check_auth(): return
     response = requests.get(f"{AUTH_SERVICE_URL}/users/", headers={"Authorization": f"Bearer {auth_token}"})
@@ -66,13 +69,22 @@ def list_users():
     else:
         print("Failed to fetch users:", response.text)
 
-# Deactivate user
-def deactivate_user(user_id):
+def delete_user(username):
     if not check_auth(): return
-    response = requests.put(f"{AUTH_SERVICE_URL}/users/{user_id}/deactivate", headers={"Authorization": f"Bearer {auth_token}"})
-    print("Response:", response.status_code, response.text)
+    confirm = input(f"Are you sure you want to delete user '{username}'? [y/N]: ").strip().lower()
+    if confirm != 'y':
+        print("User deletion canceled.")
+        return
+    response = requests.delete(f"{AUTH_SERVICE_URL}/delete/{username}", headers={"Authorization": f"Bearer {auth_token}"})
+    if response.status_code == 200:
+        print(f"User '{username}' deleted successfully.")
+    elif response.status_code == 404:
+        print(f"User '{username}' not found.")
+    else:
+        print("User deletion failed:", response.status_code, response.text)
 
-# List listings with pagination
+# LISTING MANAGEMENT
+
 def list_listings(page=1, per_page=10):
     if not check_auth(): return
     try:
@@ -103,8 +115,6 @@ def list_listings(page=1, per_page=10):
     else:
         print("Error fetching listings:", response.text)
 
-
-# Delete a listing 
 def delete_listing(listing_id):
     if not check_auth(): return
     confirm = input(f"Are you sure you want to delete listing {listing_id}? [y/N]: ").strip().lower()
@@ -114,7 +124,6 @@ def delete_listing(listing_id):
 
     response = requests.delete(
         f"{LISTINGS_SERVICE_URL}/listings/{listing_id}",
-        #headers={"Authorization": f"Bearer {auth_token}"}
     )
 
     if response.status_code == 200:
@@ -124,30 +133,151 @@ def delete_listing(listing_id):
     else:
         print("Listing deletion:", response.status_code, response.text)
 
-# Delete a review
-def delete_review(review_id):
-    if not check_auth(): return
-    response = requests.delete(
-        f"{LISTINGS_SERVICE_URL}/reviews/delete",
-        json={"review_id": review_id},
+# REVIEW MANAGEMENT
+
+def list_reviews(listing_id):
+    if not check_auth():
+        return
+    response = requests.get(
+        f"{LISTINGS_SERVICE_URL}/listings/{listing_id}/reviews",
         headers={"Authorization": f"Bearer {auth_token}"}
     )
-    print("Review deletion:", response.status_code, response.text)
+    if response.status_code != 200:
+        print("Error fetching reviews:", response.status_code, response.text)
+        return
 
-# Help menu
+    reviews = response.json()
+    if not reviews:
+        print("No reviews found for this listing.")
+        return
+
+    table = []
+    for review in reviews:
+        table.append({
+            "ID": review.get("_id", ""),
+            "Reviewer": review.get("reviewer_name", ""),
+            "Reviewer ID": review.get("reviewer_id", ""),
+            "Date": datetime.fromisoformat(review.get("date")).strftime("%Y-%m-%d"),
+            "Comment": shorten(review.get("comments", ""), width=50, placeholder="...")
+        })
+
+    print(tabulate(table, headers="keys", tablefmt="fancy_grid"))
+
+def delete_review(listing_id, review_id):
+    if not check_auth():
+        return
+
+    url = f"{LISTINGS_SERVICE_URL}/listings/{listing_id}/reviews/{review_id}"
+    headers = {"Authorization": f"Bearer {auth_token}"}
+
+    response = requests.delete(url, headers=headers)
+
+    if response.status_code == 200:
+        print(f"Review {review_id} successfully deleted.")
+    elif response.status_code == 404:
+        print("Review not found.")
+    elif response.status_code == 403:
+        print("You don't have permission to delete this review.")
+    else:
+        print(f"Error deleting review: {response.status_code} - {response.text}")
+
+# CREATE LISTING
+
+def create_listing():
+    if not check_auth():
+        return
+    print("Creating a new listing:")
+    name = input("Name: ").strip()
+    description = input("Description: ").strip()
+
+    while True:
+        try:
+            price = float(input("Price: ").strip())
+            break
+        except ValueError:
+            print("Invalid price. Please enter a number.")
+
+    location = input("Location: ").strip()
+    property_type = input("Property Type (e.g., Cottage, Apartment): ").strip()
+
+    while True:
+        try:
+            accommodates = int(input("Accommodates (number of guests): ").strip())
+            break
+        except ValueError:
+            print("Invalid number. Please enter an integer.")
+
+    print("\nPlease enter URLs for the image versions:")
+    picture_url = input("Main image URL (picture_url): ").strip()
+    thumbnail_url = input("Thumbnail URL (optional): ").strip()
+    medium_url = input("Medium URL (optional): ").strip()
+    xl_picture_url = input("XL Picture URL (optional): ").strip()
+
+    images = {
+        "picture_url": picture_url or None,
+        "thumbnail_url": thumbnail_url or None,
+        "medium_url": medium_url or None,
+        "xl_picture_url": xl_picture_url or None
+    }
+
+    listing_data = {
+        "name": name,
+        "description": description,
+        "price": price,
+        "location": location,
+        "property_type": property_type,
+        "accommodates": accommodates,
+        "images": images
+    }
+
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    response = requests.post(f"{LISTINGS_SERVICE_URL}/listings/", json=listing_data, headers=headers)
+
+    if response.status_code in [200, 201]:
+        print("Listing created successfully.")
+        print(response.json())
+    else:
+        print(f"Failed to create listing: {response.status_code} - {response.text}")
+
+#Test APIS
+def test_api():
+    if not check_auth():
+        return
+    print("Starting API tests...")
+    
+    try:
+        response = requests.get(f"{LISTINGS_SERVICE_URL}/")
+        if response.status_code==200:
+            temp = response.json().get('message')
+            print(temp)
+    except:
+        print("listing service not found")
+
+    
+
+    
+
+
+# HELP COMMANDS
+
 def help_menu():
-    print("""
-Available commands:
-  list-users
-  deactivate-user <user_id>
-  list-listings [page_number]
-  delete-listing <listing_id>
-  delete-review <review_id>
-  help
-  exit
-""")
+    commands = [
+        ["list-users", "List all registered users"],
+        ["delete_user <username>", "Delete a specific user"],
+        ["list-listings [page]", "List listings with pagination"],
+        ["delete-listing <listing_id>", "Delete a specific listing"],
+        ["create-listing", "Create a new property listing"],
+        ["list-reviews <listing_id>", "List reviews for a listing"],
+        ["delete-review <listing_id> <review_id>", "Delete a specific review"],
+        ["test-api", "Run API test suite"],
+        ["help", "Show this help message"],
+        ["exit", "Exit the CLI"],
+    ]
+    
+    print("\n🛠 Available Commands:\n")
+    print(tabulate(commands, headers=["Command", "Description"], tablefmt="fancy_grid"))
 
-# Main CLI loop
+
 def main_loop():
     authenticate()
     while True:
@@ -166,17 +296,23 @@ def main_loop():
                 help_menu()
             elif command == "list-users":
                 list_users()
-            elif command == "deactivate-user" and len(args) == 2:
-                deactivate_user(args[1])
+            elif command == "delete_user" and len(args) == 2:
+                delete_user(args[1])
             elif command == "list-listings":
                 if len(args) == 2:
                     list_listings(page=args[1])
                 else:
                     list_listings()
-            elif command == "delete-review" and len(args) == 2:
-                delete_review(args[1])
+            elif command == "delete-review" and len(args) == 3:
+                delete_review(args[1], args[2])  
+            elif command == "test-api":
+                test_api()
+            elif command == "list-reviews" and len(args) == 2:
+                list_reviews(args[1])
             elif command == "delete-listing" and len(args) == 2:
                 delete_listing(args[1])
+            elif command == "create-listing":
+                create_listing()
             else:
                 print("Unknown command or wrong usage. Type 'help' for options.")
         except KeyboardInterrupt:

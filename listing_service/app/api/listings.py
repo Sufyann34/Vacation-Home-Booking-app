@@ -31,7 +31,6 @@ async def search_listings_endpoint(
     min_price: Optional[float] = Query(None),
     max_price: Optional[float] = Query(None)
 ):
-  
     filters = {}
     if name:
         filters["name"] = {"$regex": name, "$options": "i"}
@@ -45,6 +44,10 @@ async def search_listings_endpoint(
             filters["price"]["$lte"] = max_price
 
     listings = await search_listings(filters, limit)
+    # Add summary field if missing
+    for listing in listings:
+        if "summary" not in listing:
+            listing["summary"] = f"A beautiful {listing.get('property_type', 'property')} in {listing.get('address', {}).get('market', 'a great location')}"
     return listings
 
 @router.get("/", response_model=List[Listing])

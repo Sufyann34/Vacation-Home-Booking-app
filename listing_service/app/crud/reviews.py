@@ -9,7 +9,7 @@ async def add_review(listing_id: str, review: Review) -> bool:
     Returns True if successful, False if listing not found
     """
     review_dict = review.dict()
-    review_dict["_id"] = generate_custom_id(review.reviewer_name + review.reviewer_id)
+    review_dict["_id"] = generate_custom_id(review.reviewer_name + review.reviewer_id + review.comments)
     
     result = await collection.update_one(
         {"_id": listing_id},

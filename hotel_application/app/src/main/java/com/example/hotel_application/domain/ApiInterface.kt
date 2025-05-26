@@ -2,30 +2,55 @@ package com.example.hotel_application.domain
 
 import com.example.hotel_application.model.Data
 import com.example.hotel_application.model.Details
-import com.example.hotel_application.model.HotelList
 import com.example.hotel_application.model.LoginRequest
 import com.example.hotel_application.model.SignupRequest
 import com.example.hotel_application.model.LoginResponse
 import com.example.hotel_application.model.SignupResponse
+import com.example.hotel_application.model.Review
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiInterface {
+    @GET("/listings/search")
+    suspend fun searchListings(
+        @Query("limit") limit: Int = 10,
+        @Query("name") name: String? = null,
+        @Query("property_type") property_type: String? = null,
+        @Query("min_price") minPrice: Float? = null,
+        @Query("max_price") maxPrice: Float? = null
+    ): Response<List<Data>>
+
     @GET("/listings")
     suspend fun getListing(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 10
-    ):Response<List<Data>>
+    ): Response<List<Data>>
 
     @GET("/listings/{item_id}")
     suspend fun getDetailsById(
         @Path("item_id")_id: String
     ): Response<List<Details>>
+
+    @GET("/listings/{listing_id}/reviews")
+    suspend fun getReviews(
+        @Path("listing_id") listing_id: String,
+        @Query("page") page: Int? = null,
+        @Query("limit") limit: Int? = null
+    ): Response<List<Review>>
+
+    @POST("/listings/{listing_id}/reviews")
+    suspend fun addReview(
+        @Path("listing_id") listing_id: String,
+        @Body review: Review,
+        @Header("Authorization") authorization: String
+    ): Response<Unit>
+
+    @DELETE("/listings/{listing_id}/reviews/{review_id}")
+    suspend fun deleteReview(
+        @Path("listing_id") listing_id: String,
+        @Path("review_id") review_id: String,
+        @Header("Authorization") authorization: String
+    ): Response<Unit>
 
     @POST("/login")
     suspend fun login(

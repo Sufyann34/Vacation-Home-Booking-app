@@ -1,6 +1,9 @@
 package com.example.hotel_application.screens
 
+import android.R
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,8 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -38,6 +49,7 @@ fun DetailsScreen(
     val state = mainViewModel.state
     val details = state.detailsData
     var showAddReviewDialog by remember { mutableStateOf(false) }
+    var isImageOpen by remember { mutableStateOf(false) }
 
     val systemUiController = rememberSystemUiController()
     LaunchedEffect(Unit) {
@@ -47,15 +59,25 @@ fun DetailsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 32.dp)
     ) {
+        // Top color strip (like a header bar or status bar extension)
         item {
-            Text(
-                text = "Hotel Details",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(16.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(37.dp) // height matching your padding
+                    .background(MaterialTheme.colorScheme.primary) // or any color like Color.Blue
             )
         }
+//        item {
+//            Text(
+//                text = "Hotel Details",
+//                style = MaterialTheme.typography.headlineMedium,
+//                modifier = Modifier.padding(16.dp)
+//            )
+//        }
+
+
 
         item {
             AsyncImage(
@@ -64,40 +86,76 @@ fun DetailsScreen(
                     .crossfade(true)
                     .build(),
                 contentDescription = "Hotel Image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(250.dp)
                     .padding(16.dp)
+                    .clickable { isImageOpen = true }
             )
         }
+
+// Fullscreen image dialog
+
+
 
         details?.let { it ->
             item {
                 Column(modifier = Modifier.padding(16.dp)) {
+
                     Text(
-                        text = "Name: ${it.name}",
+                        text = buildAnnotatedString {
+//                            withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.ExtraBold)) {
+//                                append("Name: ")
+//                            }
+                            withStyle(style = SpanStyle(fontSize = 30.sp, fontWeight = FontWeight.SemiBold)) {
+                                append(it.name)
+                            }
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
+
                     Text(
-                        text = "Price per night: €${it.price}",
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = Color.Blue)) {
+                                append("Price per night: ")
+                            }
+                            append("€${it.price}")
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
+
                     Text(
-                        text = "Property Type: ${it.property_type}",
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = Color.Blue)) {
+                                append("Property Type: ")
+                            }
+                            append(it.property_type)
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
+
                     Text(
-                        text = "Address: ${it.address?.street ?: "(Street not provided)"}",
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = Color.Blue)) {
+                                append("Address: ")
+                            }
+                            append(it.address?.street ?: "(Street not provided)")
+                        },
                         style = MaterialTheme.typography.bodyLarge
                     )
+
                     Text(
                         text = "Summary",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+                        color = Color.Blue
                     )
+
                     Text(
                         text = it.summary,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        color = Color.Black
                     )
                 }
             }
@@ -120,7 +178,7 @@ fun DetailsScreen(
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
-                        ReviewScoreItem("Overall Rating", scores.review_scores_rating)
+                        ReviewScoreItem("Overall Rating", scores.review_scores_rating/20)
                         ReviewScoreItem("Accuracy", scores.review_scores_accuracy)
                         ReviewScoreItem("Cleanliness", scores.review_scores_cleanliness)
                         ReviewScoreItem("Check-in", scores.review_scores_checkin)
@@ -174,7 +232,30 @@ fun DetailsScreen(
             }
         )
     }
+
+    if (isImageOpen) {
+        Dialog(onDismissRequest = { isImageOpen = false }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { isImageOpen = false },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = details?.images?.picture_url ?: "",
+                    contentDescription = "Full Image",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .width(20000.dp)
+                        .height(20000.dp)
+                        .padding(16.dp)
+                )
+            }
+        }
+    }
 }
+
+
 
 @Composable
 fun ReviewScoreItem(label: String, score: Int) {

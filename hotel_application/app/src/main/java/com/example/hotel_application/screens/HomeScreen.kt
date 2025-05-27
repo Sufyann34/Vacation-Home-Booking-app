@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -76,11 +76,12 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Hotel Search") },
+                modifier = Modifier,
+                title = { Text("FeinBleiben") },
                 actions = {
                     IconButton(onClick = { showFilters = !showFilters }) {
                         Icon(
-                            Icons.Default.FilterList,
+                            Icons.Default.AddCircle,
                             contentDescription = "Toggle filters"
                         )
                     }
@@ -96,7 +97,11 @@ fun HomeScreen(
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { searchQuery = it
+                    if (it.isBlank()) {
+                        viewModel.clearAllFilters()
+                    }
+                },
                 onSearch = { applyFilters() },
                 placeholder = { Text("Search hotels...") },
                 leadingIcon = {
@@ -215,6 +220,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 @Composable
 private fun CustomFilterChip(

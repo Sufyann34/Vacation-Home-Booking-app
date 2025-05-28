@@ -22,6 +22,7 @@ import com.example.hotel_application.components.ListingCard
 import com.example.hotel_application.components.FilterTags
 import com.example.hotel_application.viewModel.MainViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,10 @@ fun HomeScreen(
     var maxPrice by remember { mutableStateOf("") }
     
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val showScrollToTop by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 }
+    }
 
     // Update local state when filters change in ViewModel
     LaunchedEffect(state.searchQuery) {
@@ -87,6 +92,23 @@ fun HomeScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            if (showScrollToTop) {
+                FloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Scroll to top"
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         Column(

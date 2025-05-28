@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -77,9 +78,9 @@ fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
             Button(
                 onClick = {
                     if (isLoginMode) {
-                        authViewModel.login(username, password)
+                        authViewModel.login(username.trim().lowercase(), password.trim())
                     } else {
-                        authViewModel.signup(username, password, email)
+                        authViewModel.signup(username.trim().lowercase(), password.trim(), email.trim().lowercase())
                     }
                 },
                 enabled = isFormValid,

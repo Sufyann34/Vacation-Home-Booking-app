@@ -3,7 +3,7 @@ package com.example.hotel_application.model
 data class Data (
     val _id: String,
     val name: String,
-    val price: Int,
+    val price: Float,
     val property_type: String,
     val images: Images
 )

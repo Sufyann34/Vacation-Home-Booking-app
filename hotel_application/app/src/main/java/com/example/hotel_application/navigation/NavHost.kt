@@ -42,7 +42,6 @@ fun Navigation() {
     )
 
     Scaffold (
-
         topBar = {
             Box(
                 modifier = Modifier

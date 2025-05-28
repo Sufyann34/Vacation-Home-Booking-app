@@ -69,15 +69,6 @@ fun DetailsScreen(
                     .background(MaterialTheme.colorScheme.primary) // or any color like Color.Blue
             )
         }
-//        item {
-//            Text(
-//                text = "Hotel Details",
-//                style = MaterialTheme.typography.headlineMedium,
-//                modifier = Modifier.padding(16.dp)
-//            )
-//        }
-
-
 
         item {
             AsyncImage(
@@ -95,19 +86,12 @@ fun DetailsScreen(
             )
         }
 
-// Fullscreen image dialog
-
-
-
         details?.let { it ->
             item {
                 Column(modifier = Modifier.padding(16.dp)) {
 
                     Text(
                         text = buildAnnotatedString {
-//                            withStyle(style = SpanStyle(color = Color.Blue, fontWeight = FontWeight.ExtraBold)) {
-//                                append("Name: ")
-//                            }
                             withStyle(style = SpanStyle(fontSize = 30.sp, fontWeight = FontWeight.SemiBold)) {
                                 append(it.name)
                             }
@@ -184,7 +168,7 @@ fun DetailsScreen(
                         ReviewScoreItem("Check-in", scores.review_scores_checkin)
                         ReviewScoreItem("Communication", scores.review_scores_communication)
                         ReviewScoreItem("Location", scores.review_scores_location)
-                        ReviewScoreItem("Value", scores.review_scores_value)
+                        ReviewScoreItem("Value", scores.review_scores_value/20)
                     }
                 }
             }

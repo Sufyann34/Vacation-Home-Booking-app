@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/blue_600</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.Hotel_application</item>
+    </style>
+
+
     <style name="Theme.Hotel_application" parent="android:Theme.Material.Light.NoActionBar" />
+
 </resources>

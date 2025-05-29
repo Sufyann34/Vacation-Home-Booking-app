@@ -10,32 +10,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// ✅ Variables for easy customization
-private val appTitle = "Hotel Booking App"
+
+private val appTitle = "FeinBleiben"
 private val appVersion = "v1.0.0"
-private val appDescription = "This app helps users find and book hotels with ease. It offers listings, filtering, and secure authentication."
+private val appDescription = "The Vacation Home Booking project is based on a microservice architecture. It was developed as part of the \"Programming Distributed Systems\" course. The goal is to create a robust and scalable platform for booking vacation homes."
 
 private val featuresHeading = "Key Features"
 private val featuresList = listOf(
-    "Browse hotels with high-quality images",
-    "Read detailed hotel descriptions and prices",
-    "Authenticate securely (Login & Signup)",
-    "Smooth navigation with bottom navigation bar",
-    "Paginated hotel listings"
+    "Users can register and log into their accounts.",
+    "Users can browse a list of hotels and view detailed information by selecting individual listings.",
+    "A Command Line Interface (CLI) is available for administrators to manage hotel listings and moderate user reviews.",
+    "Users have the ability to submit reviews for hotels."
 )
 
 private val techStackHeading = "Built With"
 private val techList = listOf(
-    "Jetpack Compose (UI Toolkit)",
-    "Kotlin + Coroutines",
-    "Navigation Component",
-    "MVVM Architecture",
+    "Kotlin, Jetpeck Compose",
+    "Python; FastAPI, Django Framework",
+    "Docker",
+    "RESTful Architecture",
     "Retrofit for Networking"
 )
 
 private val creditsHeading = "Developers Name"
-private val developerName = "Ahmed Alam\n" + "Syed Muhammad Hasan Naqvi\n" + "Sufyan Khan\n" + "Ali bawa"
-private val developerEmail = "info@vacationHomeBooking.com"
+private val developerName = "Ahmed Alam\n" + "Syed Mohammad Hasan Naqvi\n" + "Muhammad Sufyan\n" + "Ali Bawa"
+private val developerEmail = "Group 08, Programming Distributed Systems (SoSe25)"
 
 @Composable
 fun AboutScreen() {
@@ -46,7 +45,7 @@ fun AboutScreen() {
             .padding(16.dp, bottom = 30.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = appTitle, style = MaterialTheme.typography.headlineLarge)
+        Text(text = appTitle, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(top = 16.dp))
         Text(text = appVersion, style = MaterialTheme.typography.labelLarge)
 
         Divider(thickness = 1.dp)
@@ -68,7 +67,7 @@ fun AboutScreen() {
 
         SectionHeader(creditsHeading)
         Text("$developerName", style = MaterialTheme.typography.bodyLarge)
-        Text("Email: $developerEmail", style = MaterialTheme.typography.bodyLarge)
+        Text("$developerEmail", style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -83,7 +82,7 @@ fun SectionHeader(title: String) {
 
 @Composable
 fun BulletList(items: List<String>) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items.forEach { item ->
             Row {
                 Text("• ", fontSize = 20.sp)

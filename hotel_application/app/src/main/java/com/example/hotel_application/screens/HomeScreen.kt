@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +22,7 @@ import com.example.hotel_application.components.ListingCard
 import com.example.hotel_application.components.FilterTags
 import com.example.hotel_application.viewModel.MainViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,10 @@ fun HomeScreen(
     var maxPrice by remember { mutableStateOf("") }
     
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val showScrollToTop by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 }
+    }
 
     // Update local state when filters change in ViewModel
     LaunchedEffect(state.searchQuery) {
@@ -76,16 +81,34 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Hotel Search") },
+                modifier = Modifier,
+                title = { Text("FeinBleiben") },
                 actions = {
                     IconButton(onClick = { showFilters = !showFilters }) {
                         Icon(
-                            Icons.Default.FilterList,
+                            Icons.Default.AddCircle,
                             contentDescription = "Toggle filters"
                         )
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            if (showScrollToTop) {
+                FloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Scroll to top"
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -96,7 +119,11 @@ fun HomeScreen(
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { searchQuery = it
+                    if (it.isBlank()) {
+                        viewModel.clearAllFilters()
+                    }
+                },
                 onSearch = { applyFilters() },
                 placeholder = { Text("Search hotels...") },
                 leadingIcon = {
@@ -215,6 +242,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 @Composable
 private fun CustomFilterChip(

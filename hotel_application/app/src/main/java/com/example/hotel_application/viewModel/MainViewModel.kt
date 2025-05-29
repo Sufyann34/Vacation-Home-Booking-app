@@ -10,6 +10,8 @@ import com.example.hotel_application.model.Details
 import com.example.hotel_application.model.Review
 import com.example.hotel_application.utils.UserManager
 import kotlinx.coroutines.launch
+import android.util.Log
+
 
 class MainViewModel : ViewModel() {
     private val repository = Repository()
@@ -73,10 +75,15 @@ class MainViewModel : ViewModel() {
             if (it.isNotBlank()) currentFilters["name"] = it 
             else currentFilters.remove("name")
         }
-        
-        propertyType?.let { 
-            if (it.isNotBlank()) currentFilters["property_type"] = it 
+        if (searchQuery.isNullOrBlank()) {
+            currentFilters.remove("name")
+        }
+        propertyType?.let {
+            if (it.isNotBlank()) currentFilters["property_type"] = it
             else currentFilters.remove("property_type")
+        }
+        if (propertyType.isNullOrBlank()) {
+            currentFilters.remove("property_type")
         }
         
         minPrice?.let { currentFilters["minPrice"] = it } ?: currentFilters.remove("minPrice")
@@ -104,7 +111,7 @@ class MainViewModel : ViewModel() {
             minPrice = minPrice,
             maxPrice = maxPrice
         )
-
+        Log.d("Tag", "property type is $propertyType")
         // Update active filters
         updateActiveFilters(name, propertyType, minPrice, maxPrice)
 
@@ -161,6 +168,19 @@ class MainViewModel : ViewModel() {
             )
         }
     }
+
+    fun clearAllFilters() {
+        state = state.copy(
+            activeFilters = emptyMap(),
+            searchQuery = "",
+            propertyType = "",
+            minPrice = null,
+            maxPrice = null,
+            hotels = emptyList()
+        )
+        searchListings()
+    }
+
 
     fun loadMoreListings() {
         if (!state.isLoading) {

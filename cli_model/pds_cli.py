@@ -1,7 +1,5 @@
 import requests
 import getpass
-import uuid
-import time
 from tabulate import tabulate
 import shlex
 from datetime import datetime
@@ -11,22 +9,6 @@ AUTH_SERVICE_URL = "http://authMicroservice:8000"
 LISTINGS_SERVICE_URL = "http://listing_service:80"
 auth_token = None
 
-# AUTHENTICATION FUNCTIONS
-
-def login(username, password):
-    response = requests.post(
-        f"{AUTH_SERVICE_URL}/login",
-        json={"username": username, "password": password}
-    )
-    return response.json()
-
-def signup(username, password, email):
-    response = requests.post(
-        f"{AUTH_SERVICE_URL}/signup",
-        json={"username": username, "password": password, "email": email}
-    )
-    return response.json()
-
 def verify(token):
     response = requests.get(
         f"{AUTH_SERVICE_URL}/verify",
@@ -34,6 +16,7 @@ def verify(token):
     )
     return response
 
+# AUTHENTICATION FUNCTIONS
 def authenticate():
     global auth_token
     print("Welcome to the PDS Admin CLI")
@@ -60,7 +43,6 @@ def check_auth():
     return False
 
 # USER MANAGEMENT
-
 def list_users():
     if not check_auth(): return
     response = requests.get(f"{AUTH_SERVICE_URL}/users/", headers={"Authorization": f"Bearer {auth_token}"})
@@ -71,7 +53,7 @@ def list_users():
 
 def delete_user(username):
     if not check_auth(): return
-    confirm = input(f"Are you sure you want to delete user '{username}'? [y/N]: ").strip().lower()
+    confirm = input(f"Are you sure you want to delete user '{username}'? [Y/N]: ").strip().lower()
     if confirm != 'y':
         print("User deletion canceled.")
         return
@@ -83,8 +65,8 @@ def delete_user(username):
     else:
         print("User deletion failed:", response.status_code, response.text)
 
-# LISTING MANAGEMENT
 
+# LISTING MANAGEMENT
 def list_listings(page=1, per_page=10):
     if not check_auth(): return
     try:
@@ -95,8 +77,7 @@ def list_listings(page=1, per_page=10):
         print("Invalid page number. Page must be a positive integer.")
         return
 
-    start_index = (page - 1) * per_page
-    response = requests.get(f"{LISTINGS_SERVICE_URL}/listings/?index={start_index}&limit={per_page}")
+    response = requests.get(f"{LISTINGS_SERVICE_URL}/listings/?page={page}&limit={per_page}")
 
     if response.ok:
         listings = response.json()
@@ -117,7 +98,7 @@ def list_listings(page=1, per_page=10):
 
 def delete_listing(listing_id):
     if not check_auth(): return
-    confirm = input(f"Are you sure you want to delete listing {listing_id}? [y/N]: ").strip().lower()
+    confirm = input(f"Are you sure you want to delete listing {listing_id}? [Y/N]: ").strip().lower()
     if confirm != 'y':
         print("Deletion canceled.")
         return
@@ -134,7 +115,6 @@ def delete_listing(listing_id):
         print("Listing deletion:", response.status_code, response.text)
 
 # REVIEW MANAGEMENT
-
 def list_reviews(listing_id):
     if not check_auth():
         return
@@ -182,13 +162,15 @@ def delete_review(listing_id, review_id):
         print(f"Error deleting review: {response.status_code} - {response.text}")
 
 # CREATE LISTING
-
 def create_listing():
     if not check_auth():
         return
     print("Creating a new listing:")
     name = input("Name: ").strip()
     description = input("Description: ").strip()
+    summary = input("Enter summary: ").strip()
+    street = input("Enter street Name: ").strip()
+    country = input("Enter country: ").strip()
 
     while True:
         try:
@@ -197,7 +179,6 @@ def create_listing():
         except ValueError:
             print("Invalid price. Please enter a number.")
 
-    location = input("Location: ").strip()
     property_type = input("Property Type (e.g., Cottage, Apartment): ").strip()
 
     while True:
@@ -208,26 +189,56 @@ def create_listing():
             print("Invalid number. Please enter an integer.")
 
     print("\nPlease enter URLs for the image versions:")
-    picture_url = input("Main image URL (picture_url): ").strip()
+    picture_url = input("Main image URL (optional): ").strip()
     thumbnail_url = input("Thumbnail URL (optional): ").strip()
     medium_url = input("Medium URL (optional): ").strip()
     xl_picture_url = input("XL Picture URL (optional): ").strip()
 
     images = {
-        "picture_url": picture_url or None,
-        "thumbnail_url": thumbnail_url or None,
-        "medium_url": medium_url or None,
-        "xl_picture_url": xl_picture_url or None
+        "picture_url": picture_url or "",
+        "thumbnail_url": thumbnail_url or "",
+        "medium_url": medium_url or "",
+        "xl_picture_url": xl_picture_url or ""
+    }
+    
+    review_score = {
+        "review_scores_accuracy": 0,
+        "review_scores_cleanliness": 0,
+        "review_scores_checkin": 0,
+        "review_scores_communication": 0,
+        "review_scores_location": 0,
+        "review_scores_value": 0,
+        "review_scores_rating": 0
+    }
+
+    location = {
+        "type": "Point",
+        "coordinates": [0.0, 0.0],
+        "is_location_exact": False
+    }
+    
+    address = {
+        "street": street or "",
+        "suburb": "",
+        "government_area":"",
+        "market":"",
+        "country": country or "",
+        "country_code": "",
+        "location": location
     }
 
     listing_data = {
-        "name": name,
-        "description": description,
-        "price": price,
-        "location": location,
-        "property_type": property_type,
-        "accommodates": accommodates,
-        "images": images
+        "name": name or "",
+        "price": price or 0.0,
+        "property_type": property_type or "",
+        "images": images,
+        "description": description or "",
+        "summary": summary or "",
+        "amenities": [],
+        "accommodates": accommodates or 0,
+        "reviews": [],
+        "review_scores": review_score,
+        "address": address
     }
 
     headers = {"Authorization": f"Bearer {auth_token}"}
@@ -235,9 +246,10 @@ def create_listing():
 
     if response.status_code in [200, 201]:
         print("Listing created successfully.")
-        print(response.json())
+        # print(response.json())
     else:
         print(f"Failed to create listing: {response.status_code} - {response.text}")
+
 
 #Test APIS
 def test_api():
@@ -252,11 +264,7 @@ def test_api():
             print(temp)
     except:
         print("listing service not found")
-
     
-
-    
-
 
 # HELP COMMANDS
 
@@ -274,7 +282,7 @@ def help_menu():
         ["exit", "Exit the CLI"],
     ]
     
-    print("\n🛠 Available Commands:\n")
+    print("\n Available Commands:\n")
     print(tabulate(commands, headers=["Command", "Description"], tablefmt="fancy_grid"))
 
 

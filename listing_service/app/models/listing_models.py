@@ -43,12 +43,14 @@ class Create(BaseModel):
     name: str
     price: float
     property_type: str
-    images: Image
+    images: Optional[Image] = None
     description: Optional[str] = None
     summary: Optional[str] = None
     amenities: Optional[List[str]] = None
-    accommodates: int
+    accommodates: Optional[int] = None
     reviews: Optional[List[Review]] = None
+    review_scores: Optional[ReviewScores] = None
+    address: Optional[Address] = None
 
     def to_mongo_dict(self) -> dict:
         data = self.dict()

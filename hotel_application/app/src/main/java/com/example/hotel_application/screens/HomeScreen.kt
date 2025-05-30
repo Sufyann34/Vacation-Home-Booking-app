@@ -23,6 +23,8 @@ import com.example.hotel_application.components.FilterTags
 import com.example.hotel_application.viewModel.MainViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import kotlinx.coroutines.delay
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +45,13 @@ fun HomeScreen(
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
 
+    // Debounced search query
+    var debouncedSearchQuery by remember { mutableStateOf("") }
+    LaunchedEffect(searchQuery) {
+        delay(500) // 500ms debounce
+        debouncedSearchQuery = searchQuery
+    }
+
     // Update local state when filters change in ViewModel
     LaunchedEffect(state.searchQuery) {
         searchQuery = state.searchQuery
@@ -57,13 +66,29 @@ fun HomeScreen(
         maxPrice = state.maxPrice?.toString() ?: ""
     }
 
+    // Improved scroll detection for pagination
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
-            .collect { lastIndex ->
-                if (lastIndex != null && lastIndex >= state.hotels.size - 5) {
-                    viewModel.loadMoreListings()
-                }
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            val lastVisibleItem = visibleItemsInfo.lastOrNull()
+            val viewportHeight = layoutInfo.viewportSize.height
+            val lastVisibleItemOffset = lastVisibleItem?.offset ?: 0
+            val lastVisibleItemHeight = lastVisibleItem?.size ?: 0
+            val distanceFromEnd = viewportHeight - (lastVisibleItemOffset + lastVisibleItemHeight)
+            val totalItems = layoutInfo.totalItemsCount
+            val lastIndex = lastVisibleItem?.index ?: 0
+            
+            Triple(lastIndex, distanceFromEnd, totalItems)
+        }.collect { (lastIndex, distanceFromEnd, totalItems) ->
+            // Only trigger load more if we have items and are near the end
+            if (totalItems > 0 && 
+                lastIndex >= totalItems - 2 && // Load more when 2 items from end
+                viewModel.hasMorePages) {
+                Log.d("HomeScreen", "Triggering load more - Last index: $lastIndex, Total items: $totalItems")
+                viewModel.loadMoreListings()
             }
+        }
     }
 
     fun applyFilters() {
@@ -71,11 +96,20 @@ fun HomeScreen(
         val maxPriceFloat = maxPrice.toFloatOrNull()
         
         viewModel.searchListings(
-            name = searchQuery.takeIf { it.isNotBlank() },
+            name = debouncedSearchQuery.takeIf { it.isNotBlank() },
             propertyType = propertyType.takeIf { it.isNotBlank() },
             minPrice = minPriceFloat,
             maxPrice = maxPriceFloat
         )
+    }
+
+    // Apply filters when debounced search query changes
+    LaunchedEffect(debouncedSearchQuery) {
+        if (debouncedSearchQuery.isBlank()) {
+            viewModel.clearAllFilters()
+        } else {
+            applyFilters()
+        }
     }
 
     Scaffold(
@@ -119,11 +153,7 @@ fun HomeScreen(
             // Search bar
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it
-                    if (it.isBlank()) {
-                        viewModel.clearAllFilters()
-                    }
-                },
+                onValueChange = { searchQuery = it },
                 onSearch = { applyFilters() },
                 placeholder = { Text("Search hotels...") },
                 leadingIcon = {

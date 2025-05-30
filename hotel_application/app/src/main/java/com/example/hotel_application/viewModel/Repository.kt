@@ -1,5 +1,6 @@
 package com.example.hotel_application.viewModel
 
+import android.util.Log
 import com.example.hotel_application.model.Data
 import com.example.hotel_application.model.Details
 import com.example.hotel_application.model.Review
@@ -9,23 +10,22 @@ import retrofit2.Response
 
 class Repository {
     suspend fun searchListings(
+        page: Int = 1,
         limit: Int = 10,
         name: String? = null,
         propertyType: String? = null,
         minPrice: Float? = null,
         maxPrice: Float? = null
     ): Response<List<Data>> {
+        Log.d("Repository", "Making API call - page: $page, limit: $limit")
         return RetrofitInstance.listingApi.searchListings(
+            page = page,
             limit = limit,
             name = name,
             property_type = propertyType,
             minPrice = minPrice,
             maxPrice = maxPrice
         )
-    }
-
-    suspend fun getHotelList(page: Int): Response<List<Data>> {
-        return RetrofitInstance.listingApi.getListing(page = page, limit = 10)
     }
 
     suspend fun getDetailsById(_id: String): Response<List<Details>> {
@@ -41,15 +41,6 @@ class Repository {
         return RetrofitInstance.listingApi.addReview(
             listing_id = listing_id,
             review = review,
-            authorization = "Token $token"
-        )
-    }
-
-    suspend fun deleteReview(listing_id: String, review_id: String): Response<Unit> {
-        val token = UserManager.getAuthToken()
-        return RetrofitInstance.listingApi.deleteReview(
-            listing_id = listing_id,
-            review_id = review_id,
             authorization = "Token $token"
         )
     }

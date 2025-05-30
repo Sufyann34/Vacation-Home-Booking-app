@@ -25,6 +25,7 @@ async def create_listing_endpoint(house: Create):
 
 @router.get("/search", response_model=List[Listing])
 async def search_listings_endpoint(
+    page: int = 1,
     limit: int = 10,
     name: Optional[str] = Query(None),
     property_type: Optional[str] = Query(None),
@@ -43,7 +44,7 @@ async def search_listings_endpoint(
         if max_price is not None:
             filters["price"]["$lte"] = max_price
 
-    listings = await search_listings(filters, limit)
+    listings = await search_listings(filters, page, limit)
     # Add summary field if missing
     for listing in listings:
         if "summary" not in listing:

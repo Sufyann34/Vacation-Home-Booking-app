@@ -30,8 +30,9 @@ async def delete_listing(item_id: str):
     result = await collection.delete_one({"_id": item_id})
     return result.deleted_count > 0
 
-async def search_listings(filters: dict, limit: int):
-    listings = collection.find(filters, limit = limit)
+async def search_listings(filters: dict, page: int, limit: int):
+    skip = (page - 1) * limit
+    listings = collection.find(filters).skip(skip).limit(limit)
     listing = await listings.to_list(length = limit)
     return listing
 

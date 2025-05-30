@@ -12,13 +12,15 @@ import com.example.hotel_application.utils.UserManager
 import kotlinx.coroutines.launch
 import android.util.Log
 
-
 class MainViewModel : ViewModel() {
     private val repository = Repository()
     var state by mutableStateOf(ScreenState())
-    var id by mutableStateOf("")
-    private var currentOffset = 0
-    private val pageSize = 20
+    private var _currentPage = 1
+    private val pageSize = 10
+    var hasMorePages by mutableStateOf(true)
+        private set
+    private var isSearching = false
+    private var lastResponseSize = 0
 
     var isLoggedIn by mutableStateOf(false)
         private set
@@ -42,10 +44,11 @@ class MainViewModel : ViewModel() {
         try {
             UserManager.clearUserSession()
         } catch (e: Exception) {
-            println("Exception in getDetailsById: ${e.message}")
+            Log.e("MainViewModel", "Error clearing user session: ${e.message}")
         }
         state = ScreenState()
-        currentOffset = 0
+        _currentPage = 1
+        hasMorePages = true
     }
 
     fun getDetailsById(_id: String) {
@@ -58,7 +61,7 @@ class MainViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                println("Exception in getDetailsById: ${e.message}")
+                Log.e("MainViewModel", "Error getting details: ${e.message}")
             }
         }
     }
@@ -99,26 +102,37 @@ class MainViewModel : ViewModel() {
         maxPrice: Float? = null,
         reset: Boolean = true
     ) {
+        if (isSearching) return
+
         if (reset) {
-            currentOffset = 0
+            _currentPage = 1
+            hasMorePages = true
+            lastResponseSize = 0
             state = state.copy(hotels = emptyList())
+            Log.d("Pagination", "Reset state - cleared hotels list")
         }
 
-        // Update state with new search parameters
+        if (!hasMorePages && !reset) {
+            Log.d("Pagination", "No more pages available, skipping search")
+            return
+        }
+
         state = state.copy(
             searchQuery = name ?: "",
             propertyType = propertyType ?: "",
             minPrice = minPrice,
             maxPrice = maxPrice
         )
-        Log.d("Tag", "property type is $propertyType")
-        // Update active filters
+
         updateActiveFilters(name, propertyType, minPrice, maxPrice)
 
         viewModelScope.launch {
             try {
+                isSearching = true
                 state = state.copy(isLoading = true)
+                Log.d("Pagination", "Fetching page $_currentPage with ${state.hotels.size} existing items")
                 val response = repository.searchListings(
+                    page = _currentPage,
                     limit = pageSize,
                     name = name,
                     propertyType = propertyType,
@@ -127,15 +141,47 @@ class MainViewModel : ViewModel() {
                 )
                 if (response.isSuccessful) {
                     response.body()?.let { hotels ->
+                        lastResponseSize = hotels.size
+                        Log.d("Pagination", "Received ${hotels.size} items for page $_currentPage")
+                        
+                        if (hotels.isEmpty() || hotels.size < pageSize) {
+                            hasMorePages = false
+                            Log.d("Pagination", "No more pages available")
+                        }
+                        
+                        val updatedHotels = if (reset) {
+                            hotels
+                        } else {
+                            val existingHotels = state.hotels.associateBy { it._id }
+                            state.hotels + hotels.filter { !existingHotels.containsKey(it._id) }
+                        }
+                        
+                        Log.d("Pagination", "Updating state with ${updatedHotels.size} total items (${if (reset) "reset" else "appended"})")
                         state = state.copy(
-                            hotels = if (reset) hotels else state.hotels + hotels,
+                            hotels = updatedHotels,
                             isLoading = false
                         )
+                        
+                        if (hasMorePages) {
+                            _currentPage++
+                            Log.d("Pagination", "Incrementing page to $_currentPage")
+                        }
+                    } ?: run {
+                        hasMorePages = false
+                        state = state.copy(isLoading = false)
+                        Log.d("Pagination", "Empty response body")
                     }
+                } else {
+                    hasMorePages = false
+                    state = state.copy(isLoading = false)
+                    Log.d("Pagination", "Unsuccessful response: ${response.code()}")
                 }
             } catch (e: Exception) {
-                println("Exception in searchListings: ${e.message}")
+                Log.e("MainViewModel", "Error searching listings: ${e.message}")
+                hasMorePages = false
                 state = state.copy(isLoading = false)
+            } finally {
+                isSearching = false
             }
         }
     }
@@ -181,16 +227,23 @@ class MainViewModel : ViewModel() {
         searchListings()
     }
 
-
     fun loadMoreListings() {
-        if (!state.isLoading) {
-            searchListings(
-                name = state.searchQuery,
-                propertyType = state.propertyType,
-                minPrice = state.minPrice,
-                maxPrice = state.maxPrice,
-                reset = false
-            )
+        if (hasMorePages && !isSearching) {
+            Log.d("Pagination", "Loading more listings. Current page: $_currentPage, Current items: ${state.hotels.size}")
+            if (lastResponseSize == pageSize) {
+                searchListings(
+                    name = state.searchQuery,
+                    propertyType = state.propertyType,
+                    minPrice = state.minPrice,
+                    maxPrice = state.maxPrice,
+                    reset = false
+                )
+            } else {
+                hasMorePages = false
+                Log.d("Pagination", "Stopping pagination - last response was not a full page")
+            }
+        } else {
+            Log.d("Pagination", "Skipping load more - isLoading: ${state.isLoading}, hasMorePages: $hasMorePages, isSearching: $isSearching, items: ${state.hotels.size}")
         }
     }
 
@@ -204,7 +257,7 @@ class MainViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                println("Exception in getReviews: ${e.message}")
+                Log.e("MainViewModel", "Error getting reviews: ${e.message}")
             }
         }
     }
@@ -236,7 +289,6 @@ class MainViewModel : ViewModel() {
 
                 val response = repository.addReview(listing_id, reviewWithUser)
                 if (response.isSuccessful) {
-                    // Refresh reviews after adding
                     getReviews(listing_id)
                 } else {
                     state = state.copy(reviewError = "Failed to add review")

@@ -43,7 +43,6 @@ fun DetailsScreen(
     onNavigateToReviews: () -> Unit
 ) {
     val mainViewModel = viewModel<MainViewModel>()
-    mainViewModel.id = id
     mainViewModel.getDetailsById(id)
     mainViewModel.getReviews(id)
     val state = mainViewModel.state

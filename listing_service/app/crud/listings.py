@@ -2,9 +2,6 @@ from app.database import collection
 from ..models.listing_models import Create
 from app.hash import generate_custom_id
 
-async def get_listings(index):
-    cursor = collection.find( limit = 10, skip = 1 * index )
-    return await cursor.to_list( length = 10 )
 
 async def get_listing_by_id(id):
     cursor = collection.find({"_id": id})

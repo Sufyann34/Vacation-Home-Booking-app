@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from pymongo.errors import DuplicateKeyError
-from app.crud import (  get_listings, create_listing, get_listing_by_id, 
+from app.crud import (  create_listing, get_listing_by_id, 
                         update_listing, delete_listing, search_listings, 
                         get_listings_paginated, get_listings_for_user)
 from app.models.listing_models import Listing, Create, DetailedList
@@ -18,10 +18,6 @@ async def create_listing_endpoint(house: Create):
         # Handle gracefully if same name used twice
         raise HTTPException(status_code=400, detail="Listing with same name already exists.")
 
-# @router.get("/", response_model=List[Listing])
-# async def get_all_listings_endpoint(index: int = 0):
-#     listings = await get_listings(index)
-#     return listings
 
 @router.get("/search", response_model=List[Listing])
 async def search_listings_endpoint(

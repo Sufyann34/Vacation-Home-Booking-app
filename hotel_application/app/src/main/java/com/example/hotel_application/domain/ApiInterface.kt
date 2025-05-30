@@ -2,6 +2,10 @@ package com.example.hotel_application.domain
 
 import com.example.hotel_application.model.Data
 import com.example.hotel_application.model.Details
+import com.example.hotel_application.model.LoginRequest
+import com.example.hotel_application.model.SignupRequest
+import com.example.hotel_application.model.LoginResponse
+import com.example.hotel_application.model.SignupResponse
 import com.example.hotel_application.model.Review
 import retrofit2.Response
 import retrofit2.http.*
@@ -35,4 +39,19 @@ interface ApiInterface {
         @Body review: Review,
         @Header("Authorization") authorization: String
     ): Response<Unit>
+
+    @POST("/login")
+    suspend fun login(
+        @Body loginRequest: LoginRequest
+    ): Response<LoginResponse>
+
+    @POST("/signup")
+    suspend fun signup(
+        @Body signupRequest: SignupRequest
+    ): Response<SignupResponse>  // Or your desired response type
+
+    @GET("/verify")
+    suspend fun verify(
+        @Header("Authorization") token: String
+    ): Response<Unit>  // Or replace with your actual response model
 }

@@ -3,7 +3,6 @@
 # Expose CRUD operations at package level
 
 from .listings import (
-    get_listings,
     get_listing_by_id,
     create_listing,
     update_listing,
@@ -23,7 +22,6 @@ from .reviews import (
 
 __all__ = [
     # Listing operations
-    "get_listings",
     "get_listing_by_id",
     "create_listing",
     "update_listing",

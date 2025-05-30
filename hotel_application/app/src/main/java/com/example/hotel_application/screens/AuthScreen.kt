@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.hotel_application.viewModel.AuthViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
@@ -108,20 +110,24 @@ fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
             // Optional: Display API response
             loginResponse?.let {
                 if (it.isSuccessful) {
-                    Text("Success! Token: ${it.body()?.token}")
-                    navController?.navigate("Home") // <-- navigate to MainScreen instead
-                    onLoginSuccess()
+                    Text("Login Successful!")
+                    LaunchedEffect(Unit) {
+                        delay(1000L)
+                        navController?.navigate("Home")
+                        onLoginSuccess()
+                    }
                 } else {
-                    val errorMessage = it.errorBody()?.string() ?: "Unknown error"
-                    Text("Authentication Failed $errorMessage", color = MaterialTheme.colorScheme.error)
+                    Text("Authentication Failed Unknown error", color = MaterialTheme.colorScheme.error)
                 }
             }
 
             signupResponse?.let {
                 if (it.isSuccessful) {
                     Text("Signup Successful")
-                    navController?.navigate("Login")
-//                    onLoginSuccess()
+                    LaunchedEffect(Unit) {
+                        delay(1000L)
+                        navController?.navigate("Login")
+                    }
                 } else {
                     val errorMessage = it.errorBody()?.string() ?: "Unknown error"
                     Text("Signup Failed: $errorMessage", color = MaterialTheme.colorScheme.error)

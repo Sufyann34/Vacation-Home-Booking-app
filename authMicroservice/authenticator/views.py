@@ -14,6 +14,7 @@ User = get_user_model()
 
 @api_view(['POST'])
 def login(request):
+    # Authenticates user and returns token
     user = get_object_or_404(User, username = request.data['username'])
     if not user.check_password(request.data['password']):
         return Response({"detail": "Not found."}, status = status.HTTP_404_BAD_REQUEST)
@@ -23,6 +24,7 @@ def login(request):
 
 @api_view(['POST'])
 def signup(request):
+    # Registers a new user and returns token
     if User.objects.filter(email=request.data.get('email')).exists():
         return Response({"detail": "Email address is already registered."}, status=status.HTTP_400_BAD_REQUEST)
      
@@ -40,12 +42,13 @@ def signup(request):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def verify(request):
+    # Verifies if user is authenticated
     return Response("passed for {}".format(request.user.username))
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
-# @permission_classes([IsAuthenticated])
 def list_users(request):
+    # Lists all users (authentication required)
     users = User.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
@@ -53,6 +56,7 @@ def list_users(request):
 @api_view(['DELETE'])
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 def delete_user(request, username):
+    # Deletes a user by username
     try:
         user_to_delete = User.objects.get(username=username)
         user_to_delete.delete()

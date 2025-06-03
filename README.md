@@ -69,8 +69,9 @@ open -a "Visual Studio Code" vacation-home-booking
 ```
 
 ### iii. Setting Up Environment Variables
-Create a file named .env in the root of the project, next to docker-compose.yml, and paste the MongoDB URL provided by our team via Sciebo.
-Alternatively, you can simply download the .env file from Sciebo and copy-paste it directly into the root directory.
+Create a file named **.env** in the root of the project, next to docker-compose.yml, and paste the MongoDB URL provided by our team via Sciebo.
+
+Alternatively, you can simply download the **.env** file from Sciebo and copy-paste it directly into the root directory.
 
 ### iv. Running the Application with Docker:
 - From the terminal of VS Code, run the following commands to start docker:

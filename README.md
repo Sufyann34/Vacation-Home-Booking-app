@@ -46,13 +46,13 @@ Distributed Systems" entwickelt. Ziel ist es, eine robuste und skalierbare Platt
 
 ## Anwendung Starten
 *Hinweis: Der abschnitt 'Anwendung Starten' ist auf Englisch verfasst, da dies eine Vorgabe des Kurses ist und der Kurs in Englischer Sprache unterrichtet wird.*
-### Prerequisites
+### i. Prerequisites
 Before you begin, ensure the following tools are installed on your system:
 - [Docker](https://www.docker.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Android Studio](https://developer.android.com/studio) with an Android Virtual Device
 
-### Cloning the project
+### ii. Cloning the project
 - Open your terminal and navigate to your desired project directory:
 ```bash
 cd ~/desktop # or any directory of your choice
@@ -68,10 +68,10 @@ git clone https://gitlab.hsrw.eu/34188/vacation-home-booking.git
 open -a "Visual Studio Code" vacation-home-booking
 ```
 
-### Setting Up Environment Variables
+### iii. Setting Up Environment Variables
 Create a file named .env in the root of the project, next to docker-compose.yml, and paste the MongoDB URL provided by our team via Sciebo.
 
-### Running the Application with Docker:
+### iv. Running the Application with Docker:
 - From the terminal of VS Code, run the following commands to start docker:
 ```bash
 docker compose build
@@ -80,19 +80,19 @@ docker compose run cli_model
 ```
 Make sure you have docker running in the backgroud or else these commands won't be executed.
 
-### Using CLI Tool
+### v. Using CLI Tool
 Once all the docker containers are set up:
 - Type **pds** in the same terminal to start the CLI model.
 - To register as an admin, your email must end with **@group08.pds**.
 - Type **help** in the CLI to see the full list of available commands.
 
-### Running the Android Application
+### vi. Running the Android Application
 - Open Android Studio on your system.
 - **ONLY** open the **hotel_application** subfolder — do **not** open the entire project root, or Android Studio may fail to load Gradle correctly.
 - Run the project on your selected Android Emulator.
 - Our application **FeinBleiben** will launch.
 
-### Comman Issues & Troubleshooting
+### vii. Comman Issues & Troubleshooting
 | Issue                                        | Solution                                                                                                    |
 |----------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | Docker won't start or gives container errors | Delete existing containers with conflicting names or ports.                                                 |

@@ -1,5 +1,6 @@
 import requests
 import getpass
+import re
 from tabulate import tabulate
 import shlex
 from datetime import datetime
@@ -9,6 +10,27 @@ AUTH_SERVICE_URL = "http://authMicroservice:8000"
 LISTINGS_SERVICE_URL = "http://listing_service:80"
 auth_token = None
 
+def register():
+    print("Register a New Account")
+    username = input("Username: ").strip()
+    password = getpass.getpass("Password: ").strip()
+    email = input("Email: ").strip()
+
+    if not re.match(r"[^@]+@group08\.pds$", email):
+        print("Invalid email. Must end with @group08.pds")
+        return
+
+    response = requests.post(f"{AUTH_SERVICE_URL}/signup", json={
+        "username": username,
+        "password": password,
+        "email": email
+    })
+
+    if response.status_code == 200:
+        print("Registration successful. Please login.")
+    else:
+        print("Registration failed:", response.text)
+
 def verify(token):
     response = requests.get(
         f"{AUTH_SERVICE_URL}/verify",
@@ -16,11 +38,23 @@ def verify(token):
     )
     return response
 
+def initial_prompt():
+    while True:
+        print("\nWelcome to the PDS Admin CLI")
+        choice = input("Type 'login' or 'register': ").strip().lower()
+        if choice == 'login':
+            authenticate()
+            break
+        elif choice == 'register':
+            register()
+        else:
+            print("Invalid choice. Please type 'login' or 'register'.")
+
+
 # AUTHENTICATION FUNCTIONS
 def authenticate():
     global auth_token
-    print("Welcome to the PDS Admin CLI")
-    username = input("Login: ")
+    username = input("Username: ")
     password = getpass.getpass("Password: ")
 
     response = requests.post(f"{AUTH_SERVICE_URL}/login", json={"username": username, "password": password})
@@ -287,7 +321,7 @@ def help_menu():
 
 
 def main_loop():
-    authenticate()
+    initial_prompt()
     while True:
         try:
             raw = input("> ")

@@ -93,8 +93,6 @@ class MainViewModel : ViewModel() {
         
         minPrice?.let { currentFilters["minPrice"] = it } ?: currentFilters.remove("minPrice")
         maxPrice?.let { currentFilters["maxPrice"] = it } ?: currentFilters.remove("maxPrice")
-        sortBy?.let { currentFilters["sortBy"] = it } ?: currentFilters.remove("sortBy")
-        sortOrder?.let { currentFilters["sortOrder"] = it } ?: currentFilters.remove("sortOrder")
         
         state = state.copy(activeFilters = currentFilters)
     }

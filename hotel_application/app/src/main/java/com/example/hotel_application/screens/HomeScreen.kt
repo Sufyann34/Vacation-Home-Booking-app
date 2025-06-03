@@ -106,6 +106,7 @@ fun HomeScreen(
             sortBy = sortBy,
             sortOrder = if (isAscending) 1 else -1
         )
+        showFilters = false
     }
 
     // Apply filters when debounced search query changes
@@ -274,15 +275,10 @@ fun HomeScreen(
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("Price") },
-                                    onClick = { sortBy = "price" }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Rating") },
-                                    onClick = { sortBy = "rating" }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text("Name") },
-                                    onClick = { sortBy = "name" }
+                                    onClick = { 
+                                        sortBy = "price"
+                                        isSortMenuExpanded = false
+                                    }
                                 )
                             }
                         }

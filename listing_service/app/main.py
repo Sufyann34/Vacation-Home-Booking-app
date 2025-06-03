@@ -1,3 +1,4 @@
+# FastAPI application entry point - configures CORS and registers API routers
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import listings, reviews

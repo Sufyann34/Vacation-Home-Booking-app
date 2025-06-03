@@ -1,3 +1,4 @@
+# API endpoints for listing management (CRUD operations and search)
 from fastapi import APIRouter, HTTPException, Query
 from pymongo.errors import DuplicateKeyError
 from app.crud import (  create_listing, get_listing_by_id, 

@@ -1,3 +1,4 @@
+# API endpoints for review management (create, read, delete operations)
 from fastapi import APIRouter, HTTPException, Path, Query
 from app.models import Review
 from app.crud import add_review, get_reviews, delete_review, get_reviews_paginated

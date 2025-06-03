@@ -2,6 +2,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 import os
 
+# MongoDB database connection setup using Motor async driver
+
 uri = os.getenv("MONGO_URI")
 
 # Create a new client and connect to the server

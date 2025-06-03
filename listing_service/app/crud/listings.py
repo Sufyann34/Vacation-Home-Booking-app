@@ -1,3 +1,4 @@
+# Database operations for listing management (CRUD and search)
 from app.database import collection
 from ..models.listing_models import Create
 from app.hash import generate_custom_id

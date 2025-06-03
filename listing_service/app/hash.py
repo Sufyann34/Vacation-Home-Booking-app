@@ -1,5 +1,7 @@
 import hashlib
 
+# Utility for generating unique numeric IDs from strings using SHA-256 hashing
+
 def generate_custom_id(name: str) -> str:
     # Hash the name string
     hash_object = hashlib.sha256(name.encode())

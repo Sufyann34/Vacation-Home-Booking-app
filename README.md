@@ -78,6 +78,7 @@ docker compose build
 docker compose up -d listing_service authMicroservice
 docker compose run cli_model
 ```
+Make sure you have docker running in the backgroud or else these commands won't be executed.
 
 ### Using CLI Tool
 Once all the docker containers are set up:

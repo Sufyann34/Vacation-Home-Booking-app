@@ -1,6 +1,7 @@
 from app.database import collection
 from ..models.listing_models import Create
 from app.hash import generate_custom_id
+from typing import Optional
 
 
 async def get_listing_by_id(id):
@@ -27,9 +28,17 @@ async def delete_listing(item_id: str):
     result = await collection.delete_one({"_id": item_id})
     return result.deleted_count > 0
 
-async def search_listings(filters: dict, page: int, limit: int):
+async def search_listings(
+        filters: dict, 
+        page: int, 
+        limit: int, 
+        sort_by: Optional[str] = None,
+        sort_order: Optional[int] = 1
+    ):
     skip = (page - 1) * limit
     listings = collection.find(filters).skip(skip).limit(limit)
+    if(sort_by):
+        listings = listings.sort(sort_by, sort_order)
     listing = await listings.to_list(length = limit)
     return listing
 

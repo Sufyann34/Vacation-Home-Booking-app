@@ -26,7 +26,9 @@ async def search_listings_endpoint(
     name: Optional[str] = Query(None),
     property_type: Optional[str] = Query(None),
     min_price: Optional[float] = Query(None),
-    max_price: Optional[float] = Query(None)
+    max_price: Optional[float] = Query(None),
+    sort_by: Optional[str] = None,
+    sort_order: Optional[int] = 1
 ):
     filters = {}
     if name:
@@ -40,8 +42,7 @@ async def search_listings_endpoint(
         if max_price is not None:
             filters["price"]["$lte"] = max_price
 
-    listings = await search_listings(filters, page, limit)
-    # Add summary field if missing
+    listings = await search_listings(filters, page, limit, sort_by, sort_order)
     for listing in listings:
         if "summary" not in listing:
             listing["summary"] = f"A beautiful {listing.get('property_type', 'property')} in {listing.get('address', {}).get('market', 'a great location')}"

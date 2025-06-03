@@ -54,7 +54,7 @@ def initial_prompt():
 # AUTHENTICATION FUNCTIONS
 def authenticate():
     global auth_token
-    username = input("Username: ")
+    username = input("Username: ").strip()
     password = getpass.getpass("Password: ")
 
     response = requests.post(f"{AUTH_SERVICE_URL}/login", json={"username": username, "password": password})
@@ -62,6 +62,7 @@ def authenticate():
     if response.status_code == 200:
         auth_token = response.json().get("token")
         print("Authenticated successfully.\n")
+        print("Type 'help' to display the list of available commands")
     else:
         print("Authentication failed:", response.text)
         exit(1)

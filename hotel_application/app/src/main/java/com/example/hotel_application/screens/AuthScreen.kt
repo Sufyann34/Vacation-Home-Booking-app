@@ -24,6 +24,8 @@ fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
     val authViewModel: AuthViewModel = viewModel()
     val loginResponse by authViewModel.loginResponse.collectAsState()
     val signupResponse by authViewModel.signupResponse.collectAsState()
+    var isAdminEmailError by remember { mutableStateOf(false) }
+
 
     val isFormValid = if (isLoginMode) {
         username.isNotBlank() && password.isNotBlank()
@@ -79,10 +81,19 @@ fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
 
             Button(
                 onClick = {
+                    val trimmedEmail = email.trim().lowercase()
+                    val trimmedUsername = username.trim().lowercase()
+                    val trimmedPassword = password.trim()
+
                     if (isLoginMode) {
-                        authViewModel.login(username.trim().lowercase(), password.trim())
+                        authViewModel.login(trimmedUsername, trimmedPassword)
                     } else {
-                        authViewModel.signup(username.trim().lowercase(), password.trim(), email.trim().lowercase())
+                        if (trimmedEmail.endsWith("@group08.pds")) {
+                            isAdminEmailError = true
+                        } else {
+                            isAdminEmailError = false
+                            authViewModel.signup(trimmedUsername, trimmedPassword, trimmedEmail)
+                        }
                     }
                 },
                 enabled = isFormValid,
@@ -94,6 +105,14 @@ fun AuthScreen(navController: NavHostController, onLoginSuccess: () -> Unit) {
             if (!isFormValid) {
                 Text(
                     "Please fill out all required fields",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            if (isAdminEmailError) {
+                Text(
+                    "Only admins can sign up with @group08.pds emails",
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(top = 8.dp)
                 )

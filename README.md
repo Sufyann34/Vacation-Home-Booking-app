@@ -50,7 +50,7 @@ Distributed Systems" entwickelt. Ziel ist es, eine robuste und skalierbare Platt
 Before you begin, ensure the following tools are installed on your system:
 - [Docker](https://www.docker.com/)
 - [Visual Studio Code](https://code.visualstudio.com/)
-- [Android Studio with an Android Virtual Device](https://developer.android.com/studio)
+- [Android Studio](https://developer.android.com/studio) with an Android Virtual Device
 
 ### Cloning the project
 - Open your terminal and navigate to your desired project directory:
@@ -65,7 +65,7 @@ git clone https://gitlab.hsrw.eu/34188/vacation-home-booking.git
 
 - Open the project folder in Visual Studio Code:
 ```bash
-code vacation-home-booking
+open -a "Visual Studio Code" vacation-home-booking
 ```
 
 ### Setting Up Environment Variables
@@ -80,8 +80,8 @@ docker compose run cli_model
 ```
 
 ### Using CLI Tool
-Once the CLI tool is running:
-- Type **pds** in the terminal to start the CLI model.
+Once all the docker containers are set up:
+- Type **pds** in the same terminal to start the CLI model.
 - To register as an admin, your email must end with **@group08.pds**.
 - Type **help** in the CLI to see the full list of available commands.
 

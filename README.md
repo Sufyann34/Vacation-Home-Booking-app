@@ -45,8 +45,8 @@ Distributed Systems" entwickelt. Ziel ist es, eine robuste und skalierbare Platt
     - Datenkonsistenz durch IP-Whitelist für MongoDB zugriff
 
 ## Anwendung Starten
-**Hinweis: Der abschnitt 'Anwendung Starten' ist auf Englisch verfasst, da dies eine Vorgabe des Kurses ist und der Kurs in Englischer Sprache unterrichtet wird.**
-### *Prerequisites*
+*Hinweis: Der abschnitt 'Anwendung Starten' ist auf Englisch verfasst, da dies eine Vorgabe des Kurses ist und der Kurs in Englischer Sprache unterrichtet wird.*
+### Prerequisites
 Before you begin, ensure the following tools are installed on your system:
 - Git
 - Python 3.8+
@@ -65,10 +65,10 @@ cd desktop # or any directory of your choice
 git clone https://gitlab.hsrw.eu/34188/vacation-home-booking.git
 ```
 
-- Open the project folder in Visual Studio Code
+- Open the project folder in Visual Studio Code.
 
 ### Setting Up Authentication Microservice
-- In VS Code, open the integrated terminal
+- In VS Code, open the integrated terminal.
 
 - Navigate to authMicroservice directory:
 ```bash
@@ -111,25 +111,25 @@ docker compose run cli_model
 
 ### Using CLI Tool
 Once the CLI tool is running:
-- Type **pds** in the terminal and it'll ask you to login
-- You must first sign up via our Android application (see next section)
-- After signing up via our application, log in via CLI
-- Type **help** in the CLI to see the full list of available commands
+- Type **pds** in the terminal and it'll ask you to login.
+- You must first sign up via our Android application (see next section).
+- After signing up via our application, log in via CLI.
+- Type **help** in the CLI to see the full list of available commands.
 
 ### Running the Android Application
-- Open Android Studio
-- **ONLY** open the **hotel_application** subfolder — do **not** open the entire project root, or Android Studio may fail to load Gradle correctly
-- Run the project on your Android Emulator
-- Our application **FeinBleiben** will launch
-- Sign up a new user in the app, then you may use the same credentials to log in through the CLI tool
+- Open Android Studio on your system.
+- **ONLY** open the **hotel_application** subfolder — do **not** open the entire project root, or Android Studio may fail to load Gradle correctly.
+- Run the project on your Android Emulator.
+- Our application **FeinBleiben** will launch.
+- Sign up a new user in the app, then you may use the same credentials to log in through the CLI tool.
 
 ### Comman Issues & Troubleshooting
-| Issue                                        | Solution                                                                                                   |
-|----------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports                                                 |
-| Android Studio can't find Gradle             | Ensure only hotel_application is opened, not the full repo                                                 |
-| Timeout error on data fetching               | Computers in laboratories have restricted network environments; try running the project on a local machine |
-| CLI login fail                               | Make sure you have successfully signed up in the Android application before attempting to log in           |
+| Issue                                        | Solution                                                                                                    |
+|----------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports.                                                 |
+| Android Studio can't find Gradle             | Ensure only hotel_application is opened, not the full repo.                                                 |
+| Timeout error on data fetching               | Computers in laboratories have restricted network environments; try running the project on a local machine. |
+| CLI login fail                               | Make sure you have successfully signed up in the Android application before attempting to log in.           |
 
 
 ## Anerkennung

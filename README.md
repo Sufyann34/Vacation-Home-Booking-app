@@ -70,12 +70,17 @@ open -a "Visual Studio Code" vacation-home-booking
 
 ### iii. Setting Up Environment Variables
 Create a file named .env in the root of the project, next to docker-compose.yml, and paste the MongoDB URL provided by our team via Sciebo.
+Alternatively, you can simply download the .env file from Sciebo and copy-paste it directly into the root directory.
 
 ### iv. Running the Application with Docker:
 - From the terminal of VS Code, run the following commands to start docker:
 ```bash
 docker compose build
+```
+```bash
 docker compose up -d listing_service authMicroservice
+```
+```bash
 docker compose run cli_model
 ```
 Make sure you have docker running in the backgroud or else these commands won't be executed.
@@ -93,11 +98,11 @@ Once all the docker containers are set up:
 - Our application **FeinBleiben** will launch.
 
 ### vii. Comman Issues & Troubleshooting
-| Issue                                        | Solution                                                                                                    |
-|----------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports.                                                 |
-| Android Studio can't find Gradle             | Ensure only hotel_application is opened, not the full repo.                                                 |
-| Timeout error on data fetching               | Computers in laboratories have restricted network environments; try running the project on a local machine. |
+| Issue                                        | Solution                                                                                                              |
+|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports.                                                           |
+| Android Studio can't find Gradle             | Ensure only hotel_application is opened, not the full repo. If the error still persist, try re-opening Android Studio |
+| Timeout error on data fetching               | Computers in laboratories have restricted network environments; try running the project on a local machine.           |
 
 ## Anerkennung
 Die Arbeit der Teammitglieder an der Komponenten ist in der Datei [AUTHORS.md](./AUTHORS.md) dokumentiert.

@@ -70,7 +70,9 @@ class MainViewModel : ViewModel() {
         searchQuery: String? = null,
         propertyType: String? = null,
         minPrice: Float? = null,
-        maxPrice: Float? = null
+        maxPrice: Float? = null,
+        sortBy: String? = null,
+        sortOrder: Int? = null
     ) {
         val currentFilters = state.activeFilters.toMutableMap()
         
@@ -91,6 +93,8 @@ class MainViewModel : ViewModel() {
         
         minPrice?.let { currentFilters["minPrice"] = it } ?: currentFilters.remove("minPrice")
         maxPrice?.let { currentFilters["maxPrice"] = it } ?: currentFilters.remove("maxPrice")
+        sortBy?.let { currentFilters["sortBy"] = it } ?: currentFilters.remove("sortBy")
+        sortOrder?.let { currentFilters["sortOrder"] = it } ?: currentFilters.remove("sortOrder")
         
         state = state.copy(activeFilters = currentFilters)
     }
@@ -100,6 +104,8 @@ class MainViewModel : ViewModel() {
         propertyType: String? = null,
         minPrice: Float? = null,
         maxPrice: Float? = null,
+        sortBy: String? = null,
+        sortOrder: Int? = null,
         reset: Boolean = true
     ) {
         if (isSearching) return
@@ -124,7 +130,7 @@ class MainViewModel : ViewModel() {
             maxPrice = maxPrice
         )
 
-        updateActiveFilters(name, propertyType, minPrice, maxPrice)
+        updateActiveFilters(name, propertyType, minPrice, maxPrice, sortBy, sortOrder)
 
         viewModelScope.launch {
             try {
@@ -137,7 +143,9 @@ class MainViewModel : ViewModel() {
                     name = name,
                     propertyType = propertyType,
                     minPrice = minPrice,
-                    maxPrice = maxPrice
+                    maxPrice = maxPrice,
+                    sortBy = sortBy,
+                    sortOrder = sortOrder
                 )
                 if (response.isSuccessful) {
                     response.body()?.let { hotels ->

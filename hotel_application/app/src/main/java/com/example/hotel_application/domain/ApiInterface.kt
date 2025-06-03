@@ -18,7 +18,9 @@ interface ApiInterface {
         @Query("name") name: String? = null,
         @Query("property_type") property_type: String? = null,
         @Query("min_price") minPrice: Float? = null,
-        @Query("max_price") maxPrice: Float? = null
+        @Query("max_price") maxPrice: Float? = null,
+        @Query("sort_by") sort_by: String? = null,
+        @Query("sort_order") sort_order: Int? = null
     ): Response<List<Data>>
 
     @GET("/listings/{item_id}")

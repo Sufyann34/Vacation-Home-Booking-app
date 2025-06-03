@@ -38,6 +38,9 @@ fun HomeScreen(
     var propertyType by remember { mutableStateOf("") }
     var minPrice by remember { mutableStateOf("") }
     var maxPrice by remember { mutableStateOf("") }
+    var sortBy by remember { mutableStateOf("price") } // Default sort by price
+    var isAscending by remember { mutableStateOf(true) } // Default ascending order
+    var isSortMenuExpanded by remember { mutableStateOf(false) }
     
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -99,7 +102,9 @@ fun HomeScreen(
             name = debouncedSearchQuery.takeIf { it.isNotBlank() },
             propertyType = propertyType.takeIf { it.isNotBlank() },
             minPrice = minPriceFloat,
-            maxPrice = maxPriceFloat
+            maxPrice = maxPriceFloat,
+            sortBy = sortBy,
+            sortOrder = if (isAscending) 1 else -1
         )
     }
 
@@ -238,6 +243,68 @@ fun HomeScreen(
                                 .padding(top = 16.dp)
                         ) {
                             Text("Apply Filters")
+                        }
+
+                        // Sorting section
+                        Text(
+                            text = "Sorting",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                        )
+
+                        // Sort by dropdown
+                        ExposedDropdownMenuBox(
+                            expanded = isSortMenuExpanded,
+                            onExpandedChange = { isSortMenuExpanded = it },
+                        ) {
+                            OutlinedTextField(
+                                value = sortBy,
+                                onValueChange = { },
+                                readOnly = true,
+                                label = { Text("Sort By") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isSortMenuExpanded) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = isSortMenuExpanded,
+                                onDismissRequest = { isSortMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Price") },
+                                    onClick = { sortBy = "price" }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Rating") },
+                                    onClick = { sortBy = "rating" }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Name") },
+                                    onClick = { sortBy = "name" }
+                                )
+                            }
+                        }
+
+                        // Sort order toggle
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Sort Order: ")
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = { isAscending = !isAscending },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isAscending) MaterialTheme.colorScheme.primary 
+                                    else MaterialTheme.colorScheme.secondary
+                                )
+                            ) {
+                                Text(if (isAscending) "Ascending" else "Descending")
+                            }
                         }
                     }
                 }

@@ -15,7 +15,9 @@ class Repository {
         name: String? = null,
         propertyType: String? = null,
         minPrice: Float? = null,
-        maxPrice: Float? = null
+        maxPrice: Float? = null,
+        sortBy: String? = null,
+        sortOrder: Int? = null
     ): Response<List<Data>> {
         Log.d("Repository", "Making API call - page: $page, limit: $limit")
         return RetrofitInstance.listingApi.searchListings(
@@ -24,7 +26,9 @@ class Repository {
             name = name,
             property_type = propertyType,
             minPrice = minPrice,
-            maxPrice = maxPrice
+            maxPrice = maxPrice,
+            sort_by = sortBy,
+            sort_order = sortOrder
         )
     }
 

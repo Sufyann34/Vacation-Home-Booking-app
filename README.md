@@ -1,51 +1,50 @@
-# Vacation Home Booking
-Das Vacation Home Booking ist ein Projeckt auf Basis einer Microservice Architektur. Es wurde im Rahmen des des Kurses "Programming
-Distributed Systems" entwickelt. Ziel ist es, eine robuste und skalierbare Plattform für die Buchung von Ferienhäusern zu erstellen.
+# Vacation Home Booking 
+The Vacation Home Booking is a project based on a microservice architecture. It was developed as part of the course **"Programming Distributed Systems"**. The goal is to create a robust and scalable platform for booking vacation homes.
 
-## Systemarchitektur
+## System Architecture
 
-### *1. Android App für Benutzer*
-- **Sprache:** Kotlin
-- **Plattform:** Android Virtual Device (AVD)
-- **Funktionen:**
-    - Benutzerfreundliche Oberfläche
-    - Auflisten, Sortieren und Filtern von Ferienhäusern
-    - Detailansicht mit Platzhalterbildern
-    - Bewertungsfunktion (erstellen und lesen)
-    - "Über" Seite mit Infos zum Projekt und Team
+### *1. Android App for Users*
+- **Language:** Kotlin 
+- **Platform:** Android Virtual Device (AVD) 
+- **Features:**
+- User-friendly interface 
+- List, sort, and filter vacation homes 
+- Detail view with placeholder images 
+- Rating feature (create and read reviews) 
+- "About" page with project and team information
 
-### *2. CLI-Tool für Administratoren*
-- **Sprache:** Python
-- **Zweck:** Verwaltung von Nutzern, Listen und Bewertungen
-- **Funktionen:**
-    - Moderation von Benutzern, Listen und Bewertungen
-    - Testen der Backend-APIs
-    - Ausgabe in lesbarem Format
-    - Benutzerfreundliche Befehle und Hilfe-Funktion
+### *2. CLI Tool for Administrators*
+- **Language:** Python 
+- **Purpose:** Management of users, listings, and reviews 
+- **Features:**
+- Moderation of users, listings, and reviews 
+- Testing of backend APIs 
+- Output in readable format 
+- User-friendly commands and help function
 
-### *3. Authentifizierungs-Microservice*
-- **Sprache:** Python
-- **Framework:** Django
-- **Bereitstellung:** Docker
-- **Architektur:** RESTful API
-- **Datenbank:** dbsqlite.3
-- **Funktionen:**
-    - Benutzeranmeldung und Authentifizierung
-    - Rechteverwaltung für andere Microservices
+### *3. Authentication Microservice*
+- **Language:** Python 
+- **Framework:** Django 
+- **Deployment:** Docker 
+- **Architecture:** RESTful API 
+- **Database:** dbsqlite.3 
+- **Features:**
+- User login and authentication 
+- Permission management for other microservices
 
-### *4. Microservice für Ferienhauslisten*
-- **Sprache:** Python
-- **Framework:** FastAPI
-- **Bereitstellung:** Docker
-- **Architektur:** RESTful API
-- **Datenbank:** MongoDB
-- **Funktionen:**
-    - CRUD-Operationen für Ferienhauslisten
-    - Nutzung des AirBnB-Datensatzes für realistische Listen
-    - Datenkonsistenz durch IP-Whitelist für MongoDB zugriff
+### *4. Vacation Home Listings Microservice*
+- **Language:** Python 
+- **Framework:** FastAPI 
+- **Deployment:** Docker 
+- **Architecture:** RESTful API 
+- **Database:** MongoDB 
+- **Features:**
+- CRUD operations for vacation home listings 
+- Use of the AirBnB dataset for realistic listings 
+- Data consistency through IP whitelisting for MongoDB access
 
-## Anwendung Starten
-*Hinweis: Der abschnitt 'Anwendung Starten' ist auf Englisch verfasst, da dies eine Vorgabe des Kurses ist und der Kurs in Englischer Sprache unterrichtet wird.*
+## Starting the Application 
+
 ### i. Prerequisites
 Before you begin, ensure the following tools are installed on your system:
 - [Docker](https://www.docker.com/)
@@ -99,14 +98,14 @@ Once all the docker containers are set up:
 - Our application **FeinBleiben** will launch.
 
 ### vii. Comman Issues & Troubleshooting
-| Issue                                        | Solution                                                                                                              |
+| Issue | Solution |
 |----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports.                                                           |
-| Android Studio can't find Gradle             | Ensure only hotel_application is opened, not the full repo. If the error still persist, try re-opening Android Studio |
-| Timeout error on data fetching               | Computers in laboratories have restricted network environments; try running the project on a local machine.           |
+| Docker won't start or gives container errors | Delete existing containers with conflicting names or ports. |
+| Android Studio can't find Gradle | Ensure only hotel_application is opened, not the full repo. If the error still persist, try re-opening Android Studio |
+| Timeout error on data fetching | Computers in laboratories have restricted network environments; try running the project on a local machine. |
 
-## Anerkennung
-Die Arbeit der Teammitglieder an der Komponenten ist in der Datei [AUTHORS.md](./AUTHORS.md) dokumentiert.
+## Acknowledgment 
+The contributions of the team members to the components are documented in the file [AUTHORS.md](./AUTHORS.md).
 
-## Lizenze
-Dieses Projekt ist Open-Source und unter der [BSD3-Clause license](https://opensource.org/license/BSD-3-Clause) verfügbar.
+## License 
+This project is open-source and available under the [BSD 3-Clause License](https://opensource.org/license/BSD-3-Clause).
